@@ -70,7 +70,9 @@
       btn.style.opacity = '0.5';
 
       let count = 3;
-      document.getElementById('standbyMessage') && (document.getElementById('standbyMessage').style.display = 'none');
+      const standbyMsg = document.getElementById('standbyMessage');
+      if (standbyMsg) standbyMsg.style.display = 'none';
+      
       document.getElementById('roundStatus').innerText = `ROUND ${currentRound} STARTING...`;
 
       const countInterval = setInterval(() => {
@@ -150,7 +152,6 @@
     }
 
     function renderLeaderboard(isFinalRoundReview = false) {
-      // Sort by cumulative total score across rounds
       const sorted = Object.values(players).sort((a, b) => b.totalScore - a.totalScore).slice(0, 10);
       const track = document.getElementById('raceTrack');
       if (sorted.length === 0) return;
