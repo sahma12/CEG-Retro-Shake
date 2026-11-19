@@ -187,10 +187,16 @@
 
   <!-- Realtime Track Arena -->
   <div id="raceTrack">
-    <div id="standbyMessage" style="text-align: center; padding: 100px 50px; color: #64748B; font-size: 1.5rem; line-height: 1.8;">
-      🕹️ READY PLAYER ONE... 🛼<br>
-      <span style="color: #ff007f; text-shadow: 0 0 5px #ff007f;">Scan the QR code to lock in your avatar!</span><br>
-      Press [START ROUND 1] when everyone is ready.
+    <div id="standbyMessage" style="text-align: center; padding: 40px 50px; color: #64748B; font-size: 1.5rem; line-height: 1.8;">
+      🕹️ READY EVERYONE... 🛼<br>
+      <span style="color: #ff007f; text-shadow: 0 0 5px #ff007f; font-weight: bold;">Scan the QR code to join the dance floor!</span><br><br>
+      
+      <!-- Embedded Dynamic QR Code -->
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=https://sahma12.github.io/CEG-Retro-Shake/&color=ff007f&bgcolor=121526" 
+           alt="Scan to Join" 
+           style="border: 4px solid #00ffff; border-radius: 12px; box-shadow: 0 0 20px #00ffff; margin: 10px auto;"/><br><br>
+      
+      Press [START ROUND 1] when everyone is locked in!
     </div>
   </div>
 
@@ -307,4 +313,90 @@
       if (confirm("⚠️ Are you sure you want to RESET the entire game? This deletes all scores!")) {
         clearInterval(timerInterval);
         isRacing = false;
-        curre
+        currentRound = 1;
+        roundTimeLeft = 30;
+        players = {}; 
+
+        channel.send({
+          type: 'broadcast',
+          event: 'round_control',
+          payload: { action: 'end', round: 1 }
+        });
+
+        document.getElementById('roundStatus').innerText = "ROUND 1 OF 3 (STANDBY)";
+        document.getElementById('timeRemaining').innerText = "30s";
+        
+        const btn = document.getElementById('startBtn');
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        btn.style.display = 'inline-block';
+        btn.innerText = "START ROUND 1";
+        document.getElementById('exportBtn').style.display = 'none';
+
+        const track = document.getElementById('raceTrack');
+        track.innerHTML = `
+          <div id="standbyMessage" style="text-align: center; padding: 40px 50px; color: #64748B; font-size: 1.5rem; line-height: 1.8;">
+            🕹️ READY EVERYONE... 🛼<br>
+            <span style="color: #ff007f; text-shadow: 0 0 5px #ff007f; font-weight: bold;">Scan the QR code to join the dance floor!</span><br><br>
+            
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=https://sahma12.github.io/CEG-Retro-Shake/&color=ff007f&bgcolor=121526" 
+                 alt="Scan to Join" 
+                 style="border: 4px solid #00ffff; border-radius: 12px; box-shadow: 0 0 20px #00ffff; margin: 10px auto;"/><br><br>
+            
+            Press [START ROUND 1] when everyone is locked in!
+          </div>`;
+      }
+    }
+
+    function renderLeaderboard(isFinalRoundReview = false) {
+      const sorted = Object.values(players).sort((a, b) => b.totalScore - a.totalScore).slice(0, 10);
+      const track = document.getElementById('raceTrack');
+      if (sorted.length === 0) return;
+
+      const topScore = sorted[0].totalScore || 1;
+
+      track.innerHTML = sorted.map((p, index) => {
+        const pct = Math.min(100, Math.max(12, Math.round((p.totalScore / (topScore * 1.15)) * 100)));
+        let iconMarker = '';
+        
+        if (index === 0) iconMarker = '👑 🪩 ';
+        else if (index === 1) iconMarker = '⚡ 📼 ';
+        else if (index === 2) iconMarker = '✨ 🛼 ';
+        else if (index === 3) iconMarker = '📻 ';
+        else if (index === 4) iconMarker = '🕹️ ';
+        else iconMarker = '👾 ';
+
+        return `
+          <div class="racer">
+            <div class="bar" style="width: ${pct}%;">
+              ${iconMarker}#${index + 1} ${p.name} — ${p.totalScore} pts (Round: ${p.roundScore})
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    function exportFullLeaderboard() {
+      const allSorted = Object.values(players).sort((a, b) => b.totalScore - a.totalScore);
+      if (allSorted.length === 0) {
+        alert("No player scores to export!");
+        return;
+      }
+
+      let csvContent = "Rank,Player Info,Total Score,Final Round Score\n";
+      allSorted.forEach((p, idx) => {
+        const safeName = p.name ? `"${p.name.replace(/"/g, '""')}"` : '"Unknown"';
+        csvContent += `${idx + 1},${safeName},${p.totalScore || 0},${p.roundScore || 0}\n`;
+      });
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `CEG_Retro_Shake_Results_${new Date().toISOString().slice(0,10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  </script>
+</body>
+</html>
