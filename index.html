@@ -1,11 +1,23 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>CEG MYS RETRO NIGHT • SHAKE-it CHALLENGE</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     /* 70s/80s Retro Scanline & Neon Theme */
+    html, body {
+      position: fixed; /* Crucial: Locks the screen viewport to prevent page scrolling/rubber-banding */
+      overflow: hidden;
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      touch-action: none; /* Prevents default gestures like swiping/zooming entirely */
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
     body { 
       font-family: 'Courier New', Courier, monospace; 
       text-align: center; 
@@ -16,18 +28,18 @@
         linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
       background-size: 100% 4px, 6px 100%;
       color: #fff; 
-      margin: 0; 
-      user-select: none; 
+      box-sizing: border-box;
     }
 
     .retro-icons {
-      font-size: 2rem;
+      font-size: 1.8rem;
       letter-spacing: 6px;
-      margin-bottom: 8px;
+      margin-bottom: 5px;
+      margin-top: 10px;
     }
 
     h1 { 
-      font-size: 1.55rem; 
+      font-size: 1.45rem; 
       margin: 0; 
       text-transform: uppercase; 
       letter-spacing: 2px; 
@@ -37,22 +49,22 @@
     }
 
     .title-line-2 {
-      font-size: 1.85rem;
+      font-size: 1.75rem;
       color: #ff007f;
       text-shadow: 0 0 8px #ff007f, 0 0 20px #ff007f;
       letter-spacing: 2px;
-      margin-top: 5px;
-      margin-bottom: 10px;
+      margin-top: 3px;
+      margin-bottom: 5px;
     }
 
     .tagline {
       color: #ffbf00;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       font-weight: bold;
       letter-spacing: 1.5px;
       text-transform: uppercase;
       text-shadow: 0 0 6px rgba(255, 191, 0, 0.7);
-      margin-bottom: 22px;
+      margin-bottom: 15px;
     }
 
     /* Retro Arcade Card Box */
@@ -61,31 +73,31 @@
       border: 2px solid #3d1b5c;
       box-shadow: 0 0 25px rgba(255, 0, 127, 0.2);
       border-radius: 16px;
-      padding: 22px 15px;
-      max-width: 360px;
+      padding: 15px 12px;
+      max-width: 340px;
       margin: 0 auto;
     }
 
     .input-label {
       color: #00ffff;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       font-weight: bold;
       text-transform: uppercase;
       letter-spacing: 1px;
       display: block;
-      margin-top: 10px;
-      margin-bottom: 4px;
+      margin-top: 8px;
+      margin-bottom: 3px;
     }
 
     input, button { 
       font-family: inherit;
       font-size: 1.1rem; 
-      padding: 13px 16px; 
+      padding: 12px 16px; 
       margin: 6px 0; 
       border-radius: 8px; 
       border: none; 
       width: 92%; 
-      max-width: 300px; 
+      max-width: 290px; 
       box-sizing: border-box; 
     }
 
@@ -109,34 +121,34 @@
       font-weight: bold; 
       cursor: pointer; 
       text-transform: uppercase; 
-      margin-top: 18px;
+      margin-top: 15px;
       box-shadow: 0 0 18px #ff007f; 
       letter-spacing: 1px;
     }
 
     #scoreDisplay { 
-      font-size: 5.2rem; 
+      font-size: 4.8rem; 
       font-weight: bold; 
       color: #00ffff; 
-      margin: 10px 0; 
+      margin: 5px 0; 
       text-shadow: 0 0 15px #00ffff, 0 0 30px #00ffff; 
     }
 
     #timerDisplay { 
-      font-size: 2.2rem; 
+      font-size: 2rem; 
       font-weight: bold; 
       color: #ffbf00; 
-      margin: 8px 0; 
+      margin: 5px 0; 
       text-shadow: 0 0 10px #ffbf00; 
     }
 
     .status-badge { 
       display: inline-block; 
-      padding: 8px 16px; 
+      padding: 6px 14px; 
       border-radius: 20px; 
       font-weight: bold; 
-      font-size: 0.95rem; 
-      margin-bottom: 12px; 
+      font-size: 0.9rem; 
+      margin-bottom: 8px; 
     }
     .status-wait { background: #1e293b; color: #ffbf00; border: 1px solid #ffbf00; }
     .status-shake { background: #ff007f; color: #fff; box-shadow: 0 0 15px #ff007f; animation: pulse 0.8s infinite; }
@@ -147,7 +159,7 @@
 
   <div class="retro-icons">🪩📼🛼🕹️📻</div>
   <h1>CEG MYS RETRO NIGHT</h1>
-  <h1 class="title-line-2">✨ SHAKE-it CHALLENGE ✨</h1>
+  <div class="title-line-2">✨ SHAKE-it CHALLENGE ✨</div>
   <div class="tagline">🕺 SHAKE YOUR GROOVE THING! 🕺</div>
 
   <!-- Screen 1: Join Screen -->
@@ -163,12 +175,12 @@
 
   <!-- Screen 2: Active Game / Standby Screen -->
   <div id="gameScreen" class="card-box" style="display:none;">
-    <div id="playerTag" style="color: #00ffff; font-size: 0.95rem; margin-bottom: 10px; font-weight: bold;"></div>
+    <div id="playerTag" style="color: #00ffff; font-size: 0.9rem; margin-bottom: 8px; font-weight: bold;"></div>
     <div id="roundBadge" class="status-badge status-wait">⏳ WAITING FOR MC...</div>
     <div id="timerDisplay">30s</div>
-    <h3 id="instructionText" style="color: #ff007f; text-shadow: 0 0 8px #ff007f; margin: 8px 0;">EYES ON THE BIG SCREEN!</h3>
+    <h3 id="instructionText" style="color: #ff007f; text-shadow: 0 0 8px #ff007f; margin: 5px 0;">EYES ON THE BIG SCREEN!</h3>
     <div id="scoreDisplay">0</div>
-    <p style="color: #94a3b8; font-size: 0.8rem; margin-top: 20px;">🪩 3 Rounds × 30s • Physical Shake Only 🪩</p>
+    <p style="color: #94a3b8; font-size: 0.75rem; margin-top: 15px;">🪩 3 Rounds × 30s • Physical Shake Only 🪩</p>
   </div>
 
   <script>
@@ -185,6 +197,11 @@
     let lastShakeTime = 0;
     let channel;
 
+    // Completely disable body touch-scrolling to prevent accidental sliding out of browser
+    document.addEventListener('touchmove', function(e) {
+      e.preventDefault();
+    }, { passive: false });
+
     async function joinGame() {
       const nickInput = document.getElementById('playerNickname').value.trim();
       const wwidInput = document.getElementById('playerWWID').value.trim();
@@ -194,11 +211,9 @@
         return;
       }
 
-      // Combine Nickname + WWID so the projector leaderboard displays both clearly
       playerName = `${nickInput} (${wwidInput})`;
       document.getElementById('playerTag').innerText = `🕹️ PLAYER: ${playerName}`;
 
-      // Request iOS Motion Sensor Permission
       try {
         if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
           await DeviceMotionEvent.requestPermission();
@@ -210,7 +225,6 @@
       document.getElementById('joinScreen').style.display = 'none';
       document.getElementById('gameScreen').style.display = 'block';
 
-      // Connect to Supabase Realtime Channel
       channel = supabaseClient.channel('annual-dinner-race');
 
       channel.on('broadcast', { event: 'round_control' }, ({ payload }) => {
@@ -227,12 +241,10 @@
         }
       });
 
-      // Attach accelerometer shake listener
       if (window.DeviceMotionEvent) {
         window.addEventListener('devicemotion', handleMotion, false);
       }
 
-      // Broadcast score every 350ms during active race
       setInterval(() => {
         if (isRoundActive && channel) {
           channel.send({
