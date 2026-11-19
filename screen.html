@@ -4,6 +4,7 @@
   <title>CEG MYS RETRO NIGHT • SHAKE-it CHALLENGE</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
+    /* 70s/80s Retro Grid & Neon Styles */
     body { 
       font-family: 'Courier New', Courier, monospace; 
       background-color: #0c0f1d;
@@ -111,15 +112,7 @@
       box-shadow: 0 0 35px rgba(255, 0, 127, 0.15); 
       min-height: 480px; 
     }
-    .racer { 
-      margin: 16px 0; 
-      background: #090b15; 
-      border-radius: 12px; 
-      padding: 5px; 
-      border: 2px solid #3d1b5c; 
-      position: relative; 
-      overflow: hidden; 
-    }
+    .racer { margin: 16px 0; background: #090b15; border-radius: 12px; padding: 5px; border: 2px solid #3d1b5c; position: relative; overflow: hidden; }
     .bar { 
       height: 46px; 
       background: linear-gradient(90deg, #ff007f, #b300ff, #00ffff, #ffbf00); 
@@ -181,11 +174,10 @@
     let roundTimeLeft = 30; 
     let isRacing = false;
     let timerInterval = null;
-    let musicInterval = null;
     let players = {}; 
     let soundEnabled = true;
 
-    // Built-in Web Audio Synthesizer (No external MP3 files needed)
+    // Web Audio Synthesizer
     let audioCtx = null;
     function getAudioContext() {
       if (!audioCtx) {
@@ -216,24 +208,35 @@
       }
     }
 
-    // 80s Synth Chiptune Generator
-    function startRetroMusic() {
+    // High-pitched, alarming retro-laser alarm siren
+    function playAlarmSiren() {
       if (!soundEnabled) return;
-      const bassNotes = [110, 110, 130, 110, 146, 130, 98, 123]; // Synthwave bass pattern
-      let noteIndex = 0;
-      musicInterval = setInterval(() => {
-        playTone(bassNotes[noteIndex % bassNotes.length], 'sawtooth', 0.18, 0.12);
-        if (noteIndex % 2 === 1) {
-          playTone(440, 'square', 0.08, 0.05); // High-hat arcade pulse
+      try {
+        const ctx = getAudioContext();
+        const duration = 1.6; // Alarm plays for 1.6 seconds
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        
+        osc.type = 'sawtooth'; // Aggressive retro sound
+        
+        // Fast pitch modulation (Siren wobble)
+        const now = ctx.currentTime;
+        osc.frequency.setValueAtTime(800, now);
+        // Sweep up and down extremely rapidly
+        for (let i = 0; i < duration; i += 0.1) {
+          osc.frequency.linearRampToValueAtTime(2200, now + i + 0.05); // High peak
+          osc.frequency.linearRampToValueAtTime(900, now + i + 0.1);    // Low valley
         }
-        noteIndex++;
-      }, 200);
-    }
 
-    function stopRetroMusic() {
-      if (musicInterval) {
-        clearInterval(musicInterval);
-        musicInterval = null;
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + duration);
+        
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(now + duration);
+      } catch (e) {
+        console.warn('Siren error:', e);
       }
     }
 
@@ -242,7 +245,6 @@
       const btn = document.getElementById('soundBtn');
       btn.innerText = soundEnabled ? '🔊 SOUND: ON' : '🔇 SOUND: OFF';
       btn.style.background = soundEnabled ? '#3b82f6' : '#6b7280';
-      if (!soundEnabled) stopRetroMusic();
     }
 
     const channel = supabaseClient.channel('annual-dinner-race');
@@ -271,9 +273,8 @@
       const countInterval = setInterval(() => {
         document.getElementById('timeRemaining').innerText = count;
         
-        // Play countdown arcade beep
         if (count > 0) {
-          playTone(523.25, 'triangle', 0.2, 0.25); // Mid C ping
+          playTone(600, 'triangle', 0.2, 0.2); // Short retro alert beep
         }
 
         channel.send({
@@ -285,7 +286,7 @@
         count--;
         if (count < 0) {
           clearInterval(countInterval);
-          playTone(1046.50, 'square', 0.4, 0.3); // High C launch siren!
+          playTone(1200, 'square', 0.4, 0.25); // Launch beep
           startRound();
         }
       }, 1000);
@@ -299,8 +300,6 @@
 
       document.getElementById('roundStatus').innerText = `⚡ ROUND ${currentRound} RUNNING! ⚡`;
       document.getElementById('timeRemaining').innerText = '30s';
-
-      startRetroMusic(); // Kick off 80s arcade music!
 
       channel.send({
         type: 'broadcast',
@@ -326,13 +325,10 @@
 
     function endRound() {
       clearInterval(timerInterval);
-      stopRetroMusic(); // Stop music
       isRacing = false;
 
-      // Victory / round-end fanfare
-      playTone(587.33, 'triangle', 0.2, 0.25);
-      setTimeout(() => playTone(659.25, 'triangle', 0.2, 0.25), 180);
-      setTimeout(() => playTone(880.00, 'square', 0.5, 0.3), 360);
+      // Play the alarming laser-siren!
+      playAlarmSiren();
 
       channel.send({
         type: 'broadcast',
@@ -362,7 +358,6 @@
     function resetTournament() {
       if (confirm("⚠️ Are you sure you want to RESET the entire game? This deletes all scores!")) {
         clearInterval(timerInterval);
-        stopRetroMusic();
         isRacing = false;
         currentRound = 1;
         roundTimeLeft = 30;
@@ -386,68 +381,4 @@
 
         const track = document.getElementById('raceTrack');
         track.innerHTML = `
-          <div id="standbyMessage" style="text-align: center; padding: 40px 50px; color: #64748B; font-size: 1.5rem; line-height: 1.8;">
-            🕹️ READY EVERYONE... 🛼<br>
-            <span style="color: #ff007f; text-shadow: 0 0 5px #ff007f; font-weight: bold;">Scan the QR code to join the dance floor!</span><br><br>
-            
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=https://sahma12.github.io/CEG-Retro-Shake/&color=ff007f&bgcolor=121526" 
-                 alt="Scan to Join" 
-                 style="border: 4px solid #00ffff; border-radius: 12px; box-shadow: 0 0 20px #00ffff; margin: 10px auto;"/><br><br>
-            
-            Press [START ROUND 1] when everyone is locked in!
-          </div>`;
-      }
-    }
-
-    function renderLeaderboard(isFinalRoundReview = false) {
-      const sorted = Object.values(players).sort((a, b) => b.totalScore - a.totalScore).slice(0, 10);
-      const track = document.getElementById('raceTrack');
-      if (sorted.length === 0) return;
-
-      const topScore = sorted[0].totalScore || 1;
-
-      track.innerHTML = sorted.map((p, index) => {
-        const pct = Math.min(100, Math.max(12, Math.round((p.totalScore / (topScore * 1.15)) * 100)));
-        let iconMarker = '';
-        
-        if (index === 0) iconMarker = '👑 🪩 ';
-        else if (index === 1) iconMarker = '⚡ 📼 ';
-        else if (index === 2) iconMarker = '✨ 🛼 ';
-        else if (index === 3) iconMarker = '📻 ';
-        else if (index === 4) iconMarker = '🕹️ ';
-        else iconMarker = '👾 ';
-
-        return `
-          <div class="racer">
-            <div class="bar" style="width: ${pct}%;">
-              ${iconMarker}#${index + 1} ${p.name} — ${p.totalScore} pts (Round: ${p.roundScore})
-            </div>
-          </div>`;
-      }).join('');
-    }
-
-    function exportFullLeaderboard() {
-      const allSorted = Object.values(players).sort((a, b) => b.totalScore - a.totalScore);
-      if (allSorted.length === 0) {
-        alert("No player scores to export!");
-        return;
-      }
-
-      let csvContent = "Rank,Player Info,Total Score,Final Round Score\n";
-      allSorted.forEach((p, idx) => {
-        const safeName = p.name ? `"${p.name.replace(/"/g, '""')}"` : '"Unknown"';
-        csvContent += `${idx + 1},${safeName},${p.totalScore || 0},${p.roundScore || 0}\n`;
-      });
-
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.setAttribute("href", url);
-      link.setAttribute("download", `CEG_Retro_Shake_Results_${new Date().toISOString().slice(0,10)}.csv`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-  </script>
-</body>
-</html>
+          <div id="standbyMessage" style="text-align: center; padding: 40px 50px; color: #64748B; font-size: 1.5rem; li
