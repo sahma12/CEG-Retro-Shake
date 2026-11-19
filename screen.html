@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>CEG MYS Retro Night Shake Race - Leaderboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body { font-family: 'Courier New', Courier, monospace; background: #090b15; color: white; padding: 40px; margin: 0; }
+    h1 { text-align: center; color: #00ffff; font-size: 3rem; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 3px; text-shadow: 0 0 15px #00ffff; }
+    .subtitle { text-align: center; color: #ff007f; font-size: 1.4rem; margin-bottom: 40px; text-transform: uppercase; font-weight: bold; text-shadow: 0 0 8px #ff007f; }
+    #raceTrack { max-width: 1100px; margin: 0 auto; background: #121526; border-radius: 16px; padding: 25px; border: 2px solid #3d1b5c; box-shadow: 0 0 30px rgba(255, 0, 127, 0.15); }
+    .racer { margin: 18px 0; background: #090b15; border-radius: 12px; padding: 6px; border: 1px solid #3d1b5c; position: relative; overflow: hidden; }
+    .bar { height: 48px; background: linear-gradient(90deg, #ff007f, #b300ff, #00ffff); border-radius: 8px;
+           transition: width 0.3s cubic-bezier(0.1, 0.8, 0.3, 1); display: flex; align-items: center; padding-left: 15px;
+           font-weight: bold; white-space: nowrap; font-size: 1.2rem; color: #FFFFFF; text-shadow: 2px 2px 4px rgba(0,0,0,0.9); box-shadow: 0 0 10px rgba(0, 255, 255, 0.3); }
+    .trophy { margin-right: 8px; font-size: 1.4rem; }
+  </style>
+</head>
+<body>
+  <h1>👾 CEG MYS Retro Night Shake Race 👾</h1>
+  <div class="subtitle">🚀 SHAKE YOUR PHONES TO ACCELERATE! TOP 10 STANDINGS 🚀</div>
+  
+  <div id="raceTrack">
+    <div style="text-align: center; padding: 50px; color: #64748B; font-size: 1.3rem;">
+      🚦 Insert Coins... Waiting for players to join and shake...
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://jtmctkvjfcqizcliimez.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_KGzvBz2fj6wXguYTiz7c9A_YA4Du6wG';
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const players = {};
+    const GOAL_SHAKES = 200; // Increase or decrease this number to adjust race length
+
+    const channel = supabaseClient.channel('annual-dinner-race');
+    channel.on('broadcast', { event: 'score_update' }, ({ payload }) => {
+      players[payload.id] = payload;
+      renderLeaderboard();
+    }).subscribe();
+
+    function renderLeaderboard() {
+      const sorted = Object.values(players).sort((a, b) => b.score - a.score).slice(0, 10);
+      const track = document.getElementById('raceTrack');
+      
+      if (sorted.length === 0) return;
+
+      track.innerHTML = sorted.map((p, index) => {
+        const pct = Math.min(100, Math.round((p.score / GOAL_SHAKES) * 100));
+        let trophy = '';
+        if (index === 0) trophy = '🥇 ';
+        else if (index === 1) trophy = '🥈 ';
+        else if (index === 2) trophy = '🥉 ';
+
+        return `
+          <div class="racer">
+            <div class="bar" style="width: ${Math.max(pct, 12)}%;">
+              <span class="trophy">${trophy}</span>#${index + 1} ${p.name} (${p.score} pts) 🏎️💨
+            </div>
+          </div>`;
+      }).join('');
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>CEG MYS Retro Night Shake Race</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body { font-family: 'Courier New', Courier, monospace; text-align: center; padding: 30px; background: #0c0f1d; color: #fff; }
+    input, button { font-size: 1.2rem; padding: 12px 20px; margin: 10px; border-radius: 8px; border: none; width: 85%; max-width: 300px; box-sizing: border-box; }
+    input { background: #1a1f36; color: #fff; border: 2px solid #ff007f; text-align: center; }
+    button { background: #ff007f; color: white; font-weight: bold; cursor: pointer; text-transform: uppercase; box-shadow: 0 0 15px #ff007f; transition: all 0.2s; }
+    button:hover { background: #e60072; box-shadow: 0 0 25px #ff007f; }
+    #scoreDisplay { font-size: 5rem; font-weight: bold; color: #00ffff; margin-top: 20px; text-shadow: 0 0 15px #00ffff; }
+    h2 { color: #00ffff; text-shadow: 0 0 10px #00ffff; text-transform: uppercase; }
+  </style>
+</head>
+<body>
+  <div style="font-size: 3rem; margin-bottom: 10px; text-shadow: 0 0 10px #ff007f;">🕹️</div>
+  <h2>CEG MYS Retro Night<br>Shake Race</h2>
+  <p style="color: #ff007f; text-shadow: 0 0 5px #ff007f; font-weight: bold; margin-bottom: 30px;">GET READY TO SHAKE!</p>
+
+  <div id="joinScreen">
+    <input type="text" id="playerName" placeholder="Name / Table #" maxlength="18" />
+    <br/>
+    <button onclick="joinGame()">Ready to Race</button>
+  </div>
+
+  <div id="gameScreen" style="display:none;">
+    <h3 id="welcomeText" style="color: #ff007f; text-shadow: 0 0 10px #ff007f;">SHAKE YOUR PHONE!</h3>
+    <div id="scoreDisplay">0</div>
+    <p style="color: #6b7280; font-size: 0.9rem; margin-top: 40px;">Works best on mobile data (4G/5G)</p>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://jtmctkvjfcqizcliimez.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_KGzvBz2fj6wXguYTiz7c9A_YA4Du6wG';
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const playerId = 'p_' + Math.r
