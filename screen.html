@@ -4,7 +4,6 @@
   <title>CEG MYS RETRO NIGHT • SHAKE-it CHALLENGE</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    /* 70s/80s Retro Grid & Neon Styles */
     body { 
       font-family: 'Courier New', Courier, monospace; 
       background-color: #0c0f1d;
@@ -17,151 +16,23 @@
       margin: 0; 
       user-select: none; 
     }
-
-    /* 2-Line neon titles */
-    .header-container {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    h1 { 
-      font-size: 3.4rem; 
-      margin: 0; 
-      text-transform: uppercase; 
-      letter-spacing: 4px; 
-      color: #00ffff;
-      text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 40px #00ffff;
-      font-weight: 900;
-    }
-    .main-title-2 {
-      font-size: 4rem;
-      color: #ff007f;
-      text-shadow: 0 0 10px #ff007f, 0 0 25px #ff007f, 0 0 50px #ff007f;
-      letter-spacing: 5px;
-      margin-top: 8px;
-    }
-
-    .subtitle { 
-      text-align: center; 
-      color: #ffbf00; 
-      font-size: 1.4rem; 
-      margin-top: 15px;
-      margin-bottom: 25px; 
-      font-weight: bold; 
-      text-transform: uppercase;
-      letter-spacing: 3px;
-      text-shadow: 0 0 8px rgba(255, 191, 0, 0.7); 
-    }
-    
-    /* Neon Control Board */
-    #controlBar { 
-      max-width: 1100px; 
-      margin: 0 auto 25px auto; 
-      background: #121526; 
-      border-radius: 12px; 
-      padding: 15px 25px; 
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center; 
-      border: 3px solid #ff007f; 
-      box-shadow: 0 0 15px rgba(255, 0, 127, 0.4);
-    }
-    .btn-container {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-    }
-    .btn-control { 
-      background: #ff007f; 
-      color: white; 
-      font-family: inherit; 
-      font-size: 1.25rem; 
-      font-weight: bold; 
-      padding: 14px 28px; 
-      border-radius: 8px; 
-      border: none; 
-      cursor: pointer; 
-      text-transform: uppercase; 
-      box-shadow: 0 0 15px #ff007f; 
-      transition: all 0.2s; 
-    }
-    .btn-control:hover { 
-      background: #00ffff; 
-      color: #090b15; 
-      box-shadow: 0 0 25px #00ffff; 
-    }
-    /* Special Reset Button Styling */
-    .btn-reset {
-      background: #27272a;
-      border: 2px solid #ef4444;
-      box-shadow: 0 0 8px rgba(239, 68, 68, 0.3);
-      font-size: 1.1rem;
-      padding: 14px 20px;
-    }
-    .btn-reset:hover {
-      background: #ef4444;
-      color: white;
-      box-shadow: 0 0 20px #ef4444;
-    }
-    /* Export CSV Button Styling */
-    .btn-export {
-      background: #10b981;
-      border: 2px solid #34d399;
-      box-shadow: 0 0 12px rgba(16, 185, 129, 0.5);
-      font-size: 1.15rem;
-      padding: 14px 22px;
-      display: none; 
-    }
-    .btn-export:hover {
-      background: #059669;
-      box-shadow: 0 0 22px #10b981;
-    }
-    .timer-box { 
-      font-size: 2.3rem; 
-      color: #00ffff; 
-      font-weight: bold; 
-      text-shadow: 0 0 10px #00ffff; 
-    }
-    .round-info { 
-      font-size: 1.3rem; 
-      color: #ffbf00; 
-      font-weight: bold; 
-      text-shadow: 0 0 5px rgba(255,191,0,0.5);
-    }
-
-    /* Grand Retro Track Container */
-    #raceTrack { 
-      max-width: 1100px; 
-      margin: 0 auto; 
-      background: #121526; 
-      border-radius: 16px; 
-      padding: 25px; 
-      border: 3px solid #3d1b5c; 
-      box-shadow: 0 0 35px rgba(255, 0, 127, 0.15); 
-      min-height: 480px; 
-    }
-    .racer { 
-      margin: 16px 0; 
-      background: #090b15; 
-      border-radius: 12px; 
-      padding: 5px; 
-      border: 2px solid #3d1b5c; 
-      position: relative; 
-      overflow: hidden; 
-    }
-    .bar { 
-      height: 46px; 
-      background: linear-gradient(90deg, #ff007f, #b300ff, #00ffff, #ffbf00); 
-      border-radius: 8px;
-      transition: width 0.3s cubic-bezier(0.1, 0.8, 0.3, 1); 
-      display: flex; 
-      align-items: center; 
-      padding-left: 15px;
-      font-weight: bold; 
-      white-space: nowrap; 
-      font-size: 1.2rem; 
-      color: #FFFFFF; 
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.9); 
-    }
+    .header-container { text-align: center; margin-bottom: 20px; }
+    h1 { font-size: 3.4rem; margin: 0; text-transform: uppercase; letter-spacing: 4px; color: #00ffff; text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 40px #00ffff; font-weight: 900; }
+    .main-title-2 { font-size: 4rem; color: #ff007f; text-shadow: 0 0 10px #ff007f, 0 0 25px #ff007f, 0 0 50px #ff007f; letter-spacing: 5px; margin-top: 8px; }
+    .subtitle { text-align: center; color: #ffbf00; font-size: 1.4rem; margin-top: 15px; margin-bottom: 25px; font-weight: bold; text-transform: uppercase; letter-spacing: 3px; text-shadow: 0 0 8px rgba(255, 191, 0, 0.7); }
+    #controlBar { max-width: 1100px; margin: 0 auto 25px auto; background: #121526; border-radius: 12px; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; border: 3px solid #ff007f; box-shadow: 0 0 15px rgba(255, 0, 127, 0.4); }
+    .btn-container { display: flex; gap: 12px; align-items: center; }
+    .btn-control { background: #ff007f; color: white; font-family: inherit; font-size: 1.25rem; font-weight: bold; padding: 14px 28px; border-radius: 8px; border: none; cursor: pointer; text-transform: uppercase; box-shadow: 0 0 15px #ff007f; transition: all 0.2s; }
+    .btn-control:hover { background: #00ffff; color: #090b15; box-shadow: 0 0 25px #00ffff; }
+    .btn-reset { background: #27272a; border: 2px solid #ef4444; box-shadow: 0 0 8px rgba(239, 68, 68, 0.3); font-size: 1.1rem; padding: 14px 20px; }
+    .btn-reset:hover { background: #ef4444; color: white; box-shadow: 0 0 20px #ef4444; }
+    .btn-export { background: #10b981; border: 2px solid #34d399; box-shadow: 0 0 12px rgba(16, 185, 129, 0.5); font-size: 1.15rem; padding: 14px 22px; display: none; }
+    .btn-export:hover { background: #059669; box-shadow: 0 0 22px #10b981; }
+    .timer-box { font-size: 2.3rem; color: #00ffff; font-weight: bold; text-shadow: 0 0 10px #00ffff; }
+    .round-info { font-size: 1.3rem; color: #ffbf00; font-weight: bold; text-shadow: 0 0 5px rgba(255,191,0,0.5); }
+    #raceTrack { max-width: 1100px; margin: 0 auto; background: #121526; border-radius: 16px; padding: 25px; border: 3px solid #3d1b5c; box-shadow: 0 0 35px rgba(255, 0, 127, 0.15); min-height: 480px; }
+    .racer { margin: 16px 0; background: #090b15; border-radius: 12px; padding: 5px; border: 2px solid #3d1b5c; position: relative; overflow: hidden; }
+    .bar { height: 46px; background: linear-gradient(90deg, #ff007f, #b300ff, #00ffff, #ffbf00); border-radius: 8px; transition: width 0.3s cubic-bezier(0.1, 0.8, 0.3, 1); display: flex; align-items: center; padding-left: 15px; font-weight: bold; white-space: nowrap; font-size: 1.2rem; color: #FFFFFF; text-shadow: 2px 2px 4px rgba(0,0,0,0.9); }
   </style>
 </head>
 <body>
@@ -171,7 +42,6 @@
     <h1 class="main-title-2">✨ SHAKE-it CHALLENGE ✨</h1>
   </div>
   
-  <!-- Updated Turbo-Racing Tagline -->
   <div class="subtitle">🚀 HIT THE TURBO BOOST • GO FOR THE HIGH SCORE! 📼 🕹️</div>
 
   <!-- Host Controls Panel -->
@@ -317,10 +187,11 @@
         roundTimeLeft = 30;
         players = {}; 
 
+        // Send 'hard_reset' command to all connected players
         channel.send({
           type: 'broadcast',
           event: 'round_control',
-          payload: { action: 'end', round: 1 }
+          payload: { action: 'hard_reset' }
         });
 
         document.getElementById('roundStatus').innerText = "ROUND 1 OF 3 (STANDBY)";
