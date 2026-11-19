@@ -4,7 +4,7 @@
   <title>CEG MYS RETRO NIGHT • SHAKE-it CHALLENGE</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    /* 70s/80s Retro Grid Background & Font Styles */
+    /* 70s/80s Retro Grid & Neon Styles */
     body { 
       font-family: 'Courier New', Courier, monospace; 
       background-color: #0c0f1d;
@@ -18,13 +18,13 @@
       user-select: none; 
     }
 
-    /* Beautiful 2-Line Neon Glowing Header */
+    /* 2-Line neon titles */
     .header-container {
       text-align: center;
       margin-bottom: 20px;
     }
     h1 { 
-      font-size: 3.2rem; 
+      font-size: 3.4rem; 
       margin: 0; 
       text-transform: uppercase; 
       letter-spacing: 4px; 
@@ -33,26 +33,26 @@
       font-weight: 900;
     }
     .main-title-2 {
-      font-size: 3.8rem;
+      font-size: 4rem;
       color: #ff007f;
       text-shadow: 0 0 10px #ff007f, 0 0 25px #ff007f, 0 0 50px #ff007f;
       letter-spacing: 5px;
-      margin-top: 5px;
+      margin-top: 8px;
     }
 
     .subtitle { 
       text-align: center; 
       color: #ffbf00; 
-      font-size: 1.3rem; 
+      font-size: 1.4rem; 
       margin-top: 15px;
       margin-bottom: 25px; 
       font-weight: bold; 
       text-transform: uppercase;
-      letter-spacing: 2px;
-      text-shadow: 0 0 8px rgba(255, 191, 0, 0.6); 
+      letter-spacing: 3px;
+      text-shadow: 0 0 8px rgba(255, 191, 0, 0.7); 
     }
     
-    /* Neon Control Bar */
+    /* Neon Control Board */
     #controlBar { 
       max-width: 1100px; 
       margin: 0 auto 25px auto; 
@@ -139,13 +139,14 @@
 </head>
 <body>
 
-  <!-- Dynamic retro icons combined with 2-line glowing titles -->
+  <!-- Dynamic 2-line retro titles with sparkling emoticons -->
   <div class="header-container">
-    <h1>🪩 CEG MYS RETRO NIGHT 🪩</h1>
+    <h1>🕺 CEG MYS RETRO NIGHT 🕺</h1>
     <h1 class="main-title-2">✨ SHAKE-it CHALLENGE ✨</h1>
   </div>
   
-  <div class="subtitle">📻 📼 3 ROUNDS × 30 SECONDS • SHAKE FOR COINS 🛼 🕹️</div>
+  <!-- Cool Retro-Arcade High Score Tagline -->
+  <div class="subtitle">🪩 SHAKE YOUR GROOVE THING • GO FOR THE HIGH SCORE! 📼 🕹️</div>
 
   <!-- Host Controls Panel -->
   <div id="controlBar">
@@ -157,8 +158,8 @@
   <!-- Realtime Track Arena -->
   <div id="raceTrack">
     <div id="standbyMessage" style="text-align: center; padding: 100px 50px; color: #64748B; font-size: 1.5rem; line-height: 1.8;">
-      🕺 INSERT COINS... 🕺<br>
-      <span style="color: #ff007f; text-shadow: 0 0 5px #ff007f;">Scan the QR code to join the dance floor!</span><br>
+      🕹️ READY PLAYER ONE... 🛼<br>
+      <span style="color: #ff007f; text-shadow: 0 0 5px #ff007f;">Scan the QR code to lock in your avatar!</span><br>
       Press [START ROUND 1] when everyone is ready.
     </div>
   </div>
@@ -169,7 +170,7 @@
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     let currentRound = 1;
-    let roundTimeLeft = 30; // Changed back to 30 seconds
+    let roundTimeLeft = 30; // Standardized at 30 seconds
     let isRacing = false;
     let timerInterval = null;
     const players = {}; 
@@ -284,7 +285,7 @@
         const pct = Math.min(100, Math.max(12, Math.round((p.totalScore / (topScore * 1.15)) * 100)));
         let iconMarker = '';
         
-        // Dynamic Retro Icons based on ranking positions!
+        // Dynamic Retro/Disco Icons based on ranking positions!
         if (index === 0) iconMarker = '👑 🪩 ';
         else if (index === 1) iconMarker = '⚡ 📼 ';
         else if (index === 2) iconMarker = '✨ 🛼 ';
