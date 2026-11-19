@@ -2,41 +2,173 @@
 <html>
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>CEG MYS Retro Night Shake Race</title>
+  <title>CEG MYS RETRO NIGHT • SHAKE-it CHALLENGE</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    body { font-family: 'Courier New', Courier, monospace; text-align: center; padding: 25px; background: #0c0f1d; color: #fff; margin: 0; user-select: none; }
-    input, button { font-size: 1.2rem; padding: 14px 20px; margin: 10px; border-radius: 8px; border: none; width: 90%; max-width: 320px; box-sizing: border-box; }
-    input { background: #1a1f36; color: #fff; border: 2px solid #ff007f; text-align: center; }
-    .btn-main { background: #ff007f; color: white; font-weight: bold; cursor: pointer; text-transform: uppercase; box-shadow: 0 0 15px #ff007f; }
-    #scoreDisplay { font-size: 5.5rem; font-weight: bold; color: #00ffff; margin: 10px 0; text-shadow: 0 0 15px #00ffff; }
-    #timerDisplay { font-size: 2.2rem; font-weight: bold; color: #ff007f; margin: 10px 0; text-shadow: 0 0 10px #ff007f; }
-    h2 { color: #00ffff; text-shadow: 0 0 10px #00ffff; text-transform: uppercase; margin-top: 10px; }
-    .status-badge { display: inline-block; padding: 6px 16px; border-radius: 20px; font-weight: bold; font-size: 1rem; margin-bottom: 15px; }
-    .status-wait { background: #374151; color: #9ca3af; }
-    .status-shake { background: #10b981; color: #fff; animation: pulse 1s infinite; }
-    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+    /* 70s/80s Retro Scanline & Neon Theme */
+    body { 
+      font-family: 'Courier New', Courier, monospace; 
+      text-align: center; 
+      padding: 20px 15px; 
+      background-color: #0c0f1d;
+      background-image: 
+        linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+      background-size: 100% 4px, 6px 100%;
+      color: #fff; 
+      margin: 0; 
+      user-select: none; 
+    }
+
+    .retro-icons {
+      font-size: 2rem;
+      letter-spacing: 6px;
+      margin-bottom: 8px;
+    }
+
+    h1 { 
+      font-size: 1.55rem; 
+      margin: 0; 
+      text-transform: uppercase; 
+      letter-spacing: 2px; 
+      color: #00ffff;
+      text-shadow: 0 0 8px #00ffff, 0 0 18px #00ffff;
+      font-weight: 900;
+    }
+
+    .title-line-2 {
+      font-size: 1.85rem;
+      color: #ff007f;
+      text-shadow: 0 0 8px #ff007f, 0 0 20px #ff007f;
+      letter-spacing: 2px;
+      margin-top: 5px;
+      margin-bottom: 10px;
+    }
+
+    .tagline {
+      color: #ffbf00;
+      font-size: 0.9rem;
+      font-weight: bold;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      text-shadow: 0 0 6px rgba(255, 191, 0, 0.7);
+      margin-bottom: 22px;
+    }
+
+    /* Retro Arcade Card Box */
+    .card-box {
+      background: #121526;
+      border: 2px solid #3d1b5c;
+      box-shadow: 0 0 25px rgba(255, 0, 127, 0.2);
+      border-radius: 16px;
+      padding: 22px 15px;
+      max-width: 360px;
+      margin: 0 auto;
+    }
+
+    .input-label {
+      color: #00ffff;
+      font-size: 0.9rem;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      display: block;
+      margin-top: 10px;
+      margin-bottom: 4px;
+    }
+
+    input, button { 
+      font-family: inherit;
+      font-size: 1.1rem; 
+      padding: 13px 16px; 
+      margin: 6px 0; 
+      border-radius: 8px; 
+      border: none; 
+      width: 92%; 
+      max-width: 300px; 
+      box-sizing: border-box; 
+    }
+
+    input { 
+      background: #090b15; 
+      color: #fff; 
+      border: 2px solid #ff007f; 
+      text-align: center; 
+      box-shadow: inset 0 0 8px rgba(255, 0, 127, 0.3);
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #00ffff;
+      box-shadow: 0 0 12px #00ffff;
+    }
+
+    .btn-main { 
+      background: linear-gradient(90deg, #ff007f, #b300ff); 
+      color: white; 
+      font-weight: bold; 
+      cursor: pointer; 
+      text-transform: uppercase; 
+      margin-top: 18px;
+      box-shadow: 0 0 18px #ff007f; 
+      letter-spacing: 1px;
+    }
+
+    #scoreDisplay { 
+      font-size: 5.2rem; 
+      font-weight: bold; 
+      color: #00ffff; 
+      margin: 10px 0; 
+      text-shadow: 0 0 15px #00ffff, 0 0 30px #00ffff; 
+    }
+
+    #timerDisplay { 
+      font-size: 2.2rem; 
+      font-weight: bold; 
+      color: #ffbf00; 
+      margin: 8px 0; 
+      text-shadow: 0 0 10px #ffbf00; 
+    }
+
+    .status-badge { 
+      display: inline-block; 
+      padding: 8px 16px; 
+      border-radius: 20px; 
+      font-weight: bold; 
+      font-size: 0.95rem; 
+      margin-bottom: 12px; 
+    }
+    .status-wait { background: #1e293b; color: #ffbf00; border: 1px solid #ffbf00; }
+    .status-shake { background: #ff007f; color: #fff; box-shadow: 0 0 15px #ff007f; animation: pulse 0.8s infinite; }
+    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.06); } 100% { transform: scale(1); } }
   </style>
 </head>
 <body>
-  <div style="font-size: 3rem; margin-top: 10px;">🕹️</div>
-  <h2>CEG MYS Retro Night<br>Shake Race</h2>
 
-  <!-- Screen 1: Join -->
-  <div id="joinScreen">
-    <p style="color: #ff007f; font-weight: bold;">ENTER NAME OR TABLE NUMBER</p>
-    <input type="text" id="playerName" placeholder="e.g. Table 12 - Sarah" maxlength="20" />
-    <br/>
-    <button class="btn-main" onclick="joinGame()">Ready to Race</button>
+  <div class="retro-icons">🪩📼🛼🕹️📻</div>
+  <h1>CEG MYS RETRO NIGHT</h1>
+  <h1 class="title-line-2">✨ SHAKE-it CHALLENGE ✨</h1>
+  <div class="tagline">🕺 SHAKE YOUR GROOVE THING! 🕺</div>
+
+  <!-- Screen 1: Join Screen -->
+  <div id="joinScreen" class="card-box">
+    <label class="input-label">🕺 YOUR NICKNAME</label>
+    <input type="text" id="playerNickname" placeholder="e.g. DiscoQueen" maxlength="14" />
+
+    <label class="input-label">🆔 YOUR WWID</label>
+    <input type="text" id="playerWWID" placeholder="e.g. 12345678" inputmode="numeric" maxlength="10" />
+
+    <button class="btn-main" onclick="joinGame()">🚀 JOIN THE DANCE FLOOR</button>
   </div>
 
-  <!-- Screen 2: Game / Waiting Area -->
-  <div id="gameScreen" style="display:none;">
-    <div id="roundBadge" class="status-badge status-wait">WAITING FOR MC TO START</div>
-    <div id="timerDisplay">READY</div>
-    <h3 id="instructionText" style="color: #00ffff; text-shadow: 0 0 8px #00ffff; margin: 10px 0;">LOOK AT THE BIG SCREEN</h3>
+  <!-- Screen 2: Active Game / Standby Screen -->
+  <div id="gameScreen" class="card-box" style="display:none;">
+    <div id="playerTag" style="color: #00ffff; font-size: 0.95rem; margin-bottom: 10px; font-weight: bold;"></div>
+    <div id="roundBadge" class="status-badge status-wait">⏳ WAITING FOR MC...</div>
+    <div id="timerDisplay">30s</div>
+    <h3 id="instructionText" style="color: #ff007f; text-shadow: 0 0 8px #ff007f; margin: 8px 0;">EYES ON THE BIG SCREEN!</h3>
     <div id="scoreDisplay">0</div>
-    <p style="color: #6b7280; font-size: 0.85rem; margin-top: 30px;">📱 Physical Shake Only Enabled</p>
+    <p style="color: #94a3b8; font-size: 0.8rem; margin-top: 20px;">🪩 3 Rounds × 30s • Physical Shake Only 🪩</p>
   </div>
 
   <script>
@@ -54,9 +186,17 @@
     let channel;
 
     async function joinGame() {
-      const nameInput = document.getElementById('playerName').value.trim();
-      if (!nameInput) return alert('Please enter your name or table number!');
-      playerName = nameInput;
+      const nickInput = document.getElementById('playerNickname').value.trim();
+      const wwidInput = document.getElementById('playerWWID').value.trim();
+
+      if (!nickInput || !wwidInput) {
+        alert('Please enter BOTH your Nickname and WWID to join!');
+        return;
+      }
+
+      // Combine Nickname + WWID so the projector leaderboard displays both clearly
+      playerName = `${nickInput} (${wwidInput})`;
+      document.getElementById('playerTag').innerText = `🕹️ PLAYER: ${playerName}`;
 
       // Request iOS Motion Sensor Permission
       try {
@@ -70,17 +210,15 @@
       document.getElementById('joinScreen').style.display = 'none';
       document.getElementById('gameScreen').style.display = 'block';
 
-      // Connect to Realtime Channel
+      // Connect to Supabase Realtime Channel
       channel = supabaseClient.channel('annual-dinner-race');
 
-      // Listen for Game Controller signals from projector
       channel.on('broadcast', { event: 'round_control' }, ({ payload }) => {
         handleRoundControl(payload);
       });
 
       channel.subscribe((status) => {
         if (status === 'SUBSCRIBED') {
-          // Announce player presence
           channel.send({
             type: 'broadcast',
             event: 'player_joined',
@@ -116,38 +254,37 @@
       if (data.action === 'countdown') {
         currentRound = data.round;
         document.getElementById('roundBadge').className = 'status-badge status-wait';
-        document.getElementById('roundBadge').innerText = `ROUND ${currentRound} STARTING IN...`;
+        document.getElementById('roundBadge').innerText = `🛸 ROUND ${currentRound} STARTING IN...`;
         document.getElementById('timerDisplay').innerText = data.seconds;
-        document.getElementById('instructionText').innerText = 'GET A TIGHT GRIP!';
+        document.getElementById('instructionText').innerText = 'HOLD YOUR PHONE TIGHT!';
       } else if (data.action === 'start') {
         isRoundActive = true;
         currentRound = data.round;
         currentRoundScore = 0;
         document.getElementById('scoreDisplay').innerText = '0';
         document.getElementById('roundBadge').className = 'status-badge status-shake';
-        document.getElementById('roundBadge').innerText = `🔥 ROUND ${currentRound} ACTIVE! 🔥`;
-        document.getElementById('instructionText').innerText = 'SHAKE AS FAST AS YOU CAN!';
+        document.getElementById('roundBadge').innerText = `🔥 ROUND ${currentRound} LIVE! 🔥`;
+        document.getElementById('instructionText').innerText = '🪩 SHAKE IT TO THE MAX! 🪩';
       } else if (data.action === 'tick') {
         document.getElementById('timerDisplay').innerText = `${data.timeLeft}s`;
       } else if (data.action === 'end') {
         isRoundActive = false;
         totalScore += currentRoundScore;
         document.getElementById('roundBadge').className = 'status-badge status-wait';
-        document.getElementById('roundBadge').innerText = `ROUND ${currentRound} FINISHED!`;
+        document.getElementById('roundBadge').innerText = `🏁 ROUND ${currentRound} COMPLETE!`;
         document.getElementById('timerDisplay').innerText = 'TIME UP!';
-        document.getElementById('instructionText').innerText = 'LOOK AT THE PROJECTOR LEADERBOARD';
+        document.getElementById('instructionText').innerText = `TOTAL SCORE: ${totalScore} PTS`;
       }
     }
 
     function handleMotion(event) {
-      if (!isRoundActive) return; // Ignore shakes when round is not active
+      if (!isRoundActive) return;
 
       const acc = event.accelerationIncludingGravity || event.acceleration;
       if (!acc) return;
       const totalForce = Math.abs(acc.x || 0) + Math.abs(acc.y || 0) + Math.abs(acc.z || 0);
       const now = Date.now();
 
-      // Shake detection: threshold 22, minimum 75ms cooldown between shakes
       if (totalForce > 22 && (now - lastShakeTime > 75)) {
         currentRoundScore++;
         lastShakeTime = now;
