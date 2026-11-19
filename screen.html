@@ -16,23 +16,124 @@
       margin: 0; 
       user-select: none; 
     }
+
     .header-container { text-align: center; margin-bottom: 20px; }
-    h1 { font-size: 3.4rem; margin: 0; text-transform: uppercase; letter-spacing: 4px; color: #00ffff; text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 40px #00ffff; font-weight: 900; }
-    .main-title-2 { font-size: 4rem; color: #ff007f; text-shadow: 0 0 10px #ff007f, 0 0 25px #ff007f, 0 0 50px #ff007f; letter-spacing: 5px; margin-top: 8px; }
-    .subtitle { text-align: center; color: #ffbf00; font-size: 1.4rem; margin-top: 15px; margin-bottom: 25px; font-weight: bold; text-transform: uppercase; letter-spacing: 3px; text-shadow: 0 0 8px rgba(255, 191, 0, 0.7); }
-    #controlBar { max-width: 1100px; margin: 0 auto 25px auto; background: #121526; border-radius: 12px; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; border: 3px solid #ff007f; box-shadow: 0 0 15px rgba(255, 0, 127, 0.4); }
+    h1 { 
+      font-size: 3.4rem; 
+      margin: 0; 
+      text-transform: uppercase; 
+      letter-spacing: 4px; 
+      color: #00ffff;
+      text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 40px #00ffff;
+      font-weight: 900;
+    }
+    .main-title-2 { 
+      font-size: 4rem; 
+      color: #ff007f; 
+      text-shadow: 0 0 10px #ff007f, 0 0 25px #ff007f, 0 0 50px #ff007f; 
+      letter-spacing: 5px; 
+      margin-top: 8px; 
+    }
+
+    .subtitle { 
+      text-align: center; 
+      color: #ffbf00; 
+      font-size: 1.4rem; 
+      margin-top: 15px; 
+      margin-bottom: 25px; 
+      font-weight: bold; 
+      text-transform: uppercase; 
+      letter-spacing: 3px; 
+      text-shadow: 0 0 8px rgba(255, 191, 0, 0.7); 
+    }
+    
+    #controlBar { 
+      max-width: 1100px; 
+      margin: 0 auto 25px auto; 
+      background: #121526; 
+      border-radius: 12px; 
+      padding: 15px 25px; 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      border: 3px solid #ff007f; 
+      box-shadow: 0 0 15px rgba(255, 0, 127, 0.4); 
+    }
     .btn-container { display: flex; gap: 12px; align-items: center; }
-    .btn-control { background: #ff007f; color: white; font-family: inherit; font-size: 1.25rem; font-weight: bold; padding: 14px 28px; border-radius: 8px; border: none; cursor: pointer; text-transform: uppercase; box-shadow: 0 0 15px #ff007f; transition: all 0.2s; }
+    .btn-control { 
+      background: #ff007f; 
+      color: white; 
+      font-family: inherit; 
+      font-size: 1.25rem; 
+      font-weight: bold; 
+      padding: 14px 28px; 
+      border-radius: 8px; 
+      border: none; 
+      cursor: pointer; 
+      text-transform: uppercase; 
+      box-shadow: 0 0 15px #ff007f; 
+      transition: all 0.2s; 
+    }
     .btn-control:hover { background: #00ffff; color: #090b15; box-shadow: 0 0 25px #00ffff; }
-    .btn-reset { background: #27272a; border: 2px solid #ef4444; box-shadow: 0 0 8px rgba(239, 68, 68, 0.3); font-size: 1.1rem; padding: 14px 20px; }
+    
+    .btn-sound { background: #3b82f6; font-size: 1.1rem; padding: 14px 18px; }
+    .btn-sound:hover { background: #60a5fa; color: white; }
+
+    .btn-reset { 
+      background: #27272a; 
+      border: 2px solid #ef4444; 
+      box-shadow: 0 0 8px rgba(239, 68, 68, 0.3); 
+      font-size: 1.1rem; 
+      padding: 14px 20px; 
+    }
     .btn-reset:hover { background: #ef4444; color: white; box-shadow: 0 0 20px #ef4444; }
-    .btn-export { background: #10b981; border: 2px solid #34d399; box-shadow: 0 0 12px rgba(16, 185, 129, 0.5); font-size: 1.15rem; padding: 14px 22px; display: none; }
+
+    .btn-export { 
+      background: #10b981; 
+      border: 2px solid #34d399; 
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.5); 
+      font-size: 1.15rem; 
+      padding: 14px 22px; 
+      display: none; 
+    }
     .btn-export:hover { background: #059669; box-shadow: 0 0 22px #10b981; }
+
     .timer-box { font-size: 2.3rem; color: #00ffff; font-weight: bold; text-shadow: 0 0 10px #00ffff; }
     .round-info { font-size: 1.3rem; color: #ffbf00; font-weight: bold; text-shadow: 0 0 5px rgba(255,191,0,0.5); }
-    #raceTrack { max-width: 1100px; margin: 0 auto; background: #121526; border-radius: 16px; padding: 25px; border: 3px solid #3d1b5c; box-shadow: 0 0 35px rgba(255, 0, 127, 0.15); min-height: 480px; }
-    .racer { margin: 16px 0; background: #090b15; border-radius: 12px; padding: 5px; border: 2px solid #3d1b5c; position: relative; overflow: hidden; }
-    .bar { height: 46px; background: linear-gradient(90deg, #ff007f, #b300ff, #00ffff, #ffbf00); border-radius: 8px; transition: width 0.3s cubic-bezier(0.1, 0.8, 0.3, 1); display: flex; align-items: center; padding-left: 15px; font-weight: bold; white-space: nowrap; font-size: 1.2rem; color: #FFFFFF; text-shadow: 2px 2px 4px rgba(0,0,0,0.9); }
+
+    #raceTrack { 
+      max-width: 1100px; 
+      margin: 0 auto; 
+      background: #121526; 
+      border-radius: 16px; 
+      padding: 25px; 
+      border: 3px solid #3d1b5c; 
+      box-shadow: 0 0 35px rgba(255, 0, 127, 0.15); 
+      min-height: 480px; 
+    }
+    .racer { 
+      margin: 16px 0; 
+      background: #090b15; 
+      border-radius: 12px; 
+      padding: 5px; 
+      border: 2px solid #3d1b5c; 
+      position: relative; 
+      overflow: hidden; 
+    }
+    .bar { 
+      height: 46px; 
+      background: linear-gradient(90deg, #ff007f, #b300ff, #00ffff, #ffbf00); 
+      border-radius: 8px; 
+      transition: width 0.3s cubic-bezier(0.1, 0.8, 0.3, 1); 
+      display: flex; 
+      align-items: center; 
+      padding-left: 15px; 
+      font-weight: bold; 
+      white-space: nowrap; 
+      font-size: 1.2rem; 
+      color: #FFFFFF; 
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.9); 
+    }
   </style>
 </head>
 <body>
@@ -49,6 +150,7 @@
     <div class="round-info" id="roundStatus">ROUND 1 OF 3 (STANDBY)</div>
     <div class="timer-box" id="timeRemaining">30s</div>
     <div class="btn-container">
+      <button class="btn-control btn-sound" id="soundBtn" onclick="toggleSound()">🔊 SOUND: ON</button>
       <button class="btn-control btn-export" id="exportBtn" onclick="exportFullLeaderboard()">📥 EXPORT FULL RESULTS (CSV)</button>
       <button class="btn-control btn-reset" onclick="resetTournament()">⚠️ RESET ALL</button>
       <button class="btn-control" id="startBtn" onclick="triggerCountdown()">START ROUND 1</button>
@@ -79,7 +181,69 @@
     let roundTimeLeft = 30; 
     let isRacing = false;
     let timerInterval = null;
+    let musicInterval = null;
     let players = {}; 
+    let soundEnabled = true;
+
+    // Built-in Web Audio Synthesizer (No external MP3 files needed)
+    let audioCtx = null;
+    function getAudioContext() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    function playTone(freq, type, duration, volume = 0.2) {
+      if (!soundEnabled) return;
+      try {
+        const ctx = getAudioContext();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, ctx.currentTime);
+        gain.gain.setValueAtTime(volume, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + duration);
+      } catch (e) {
+        console.warn('Audio error:', e);
+      }
+    }
+
+    // 80s Synth Chiptune Generator
+    function startRetroMusic() {
+      if (!soundEnabled) return;
+      const bassNotes = [110, 110, 130, 110, 146, 130, 98, 123]; // Synthwave bass pattern
+      let noteIndex = 0;
+      musicInterval = setInterval(() => {
+        playTone(bassNotes[noteIndex % bassNotes.length], 'sawtooth', 0.18, 0.12);
+        if (noteIndex % 2 === 1) {
+          playTone(440, 'square', 0.08, 0.05); // High-hat arcade pulse
+        }
+        noteIndex++;
+      }, 200);
+    }
+
+    function stopRetroMusic() {
+      if (musicInterval) {
+        clearInterval(musicInterval);
+        musicInterval = null;
+      }
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      const btn = document.getElementById('soundBtn');
+      btn.innerText = soundEnabled ? '🔊 SOUND: ON' : '🔇 SOUND: OFF';
+      btn.style.background = soundEnabled ? '#3b82f6' : '#6b7280';
+      if (!soundEnabled) stopRetroMusic();
+    }
 
     const channel = supabaseClient.channel('annual-dinner-race');
 
@@ -93,6 +257,7 @@
     }).subscribe();
 
     function triggerCountdown() {
+      getAudioContext(); // Unlock browser audio
       const btn = document.getElementById('startBtn');
       btn.disabled = true;
       btn.style.opacity = '0.5';
@@ -105,6 +270,12 @@
 
       const countInterval = setInterval(() => {
         document.getElementById('timeRemaining').innerText = count;
+        
+        // Play countdown arcade beep
+        if (count > 0) {
+          playTone(523.25, 'triangle', 0.2, 0.25); // Mid C ping
+        }
+
         channel.send({
           type: 'broadcast',
           event: 'round_control',
@@ -114,6 +285,7 @@
         count--;
         if (count < 0) {
           clearInterval(countInterval);
+          playTone(1046.50, 'square', 0.4, 0.3); // High C launch siren!
           startRound();
         }
       }, 1000);
@@ -127,6 +299,8 @@
 
       document.getElementById('roundStatus').innerText = `⚡ ROUND ${currentRound} RUNNING! ⚡`;
       document.getElementById('timeRemaining').innerText = '30s';
+
+      startRetroMusic(); // Kick off 80s arcade music!
 
       channel.send({
         type: 'broadcast',
@@ -152,7 +326,13 @@
 
     function endRound() {
       clearInterval(timerInterval);
+      stopRetroMusic(); // Stop music
       isRacing = false;
+
+      // Victory / round-end fanfare
+      playTone(587.33, 'triangle', 0.2, 0.25);
+      setTimeout(() => playTone(659.25, 'triangle', 0.2, 0.25), 180);
+      setTimeout(() => playTone(880.00, 'square', 0.5, 0.3), 360);
 
       channel.send({
         type: 'broadcast',
@@ -182,12 +362,12 @@
     function resetTournament() {
       if (confirm("⚠️ Are you sure you want to RESET the entire game? This deletes all scores!")) {
         clearInterval(timerInterval);
+        stopRetroMusic();
         isRacing = false;
         currentRound = 1;
         roundTimeLeft = 30;
         players = {}; 
 
-        // Send 'hard_reset' command to all connected players
         channel.send({
           type: 'broadcast',
           event: 'round_control',
