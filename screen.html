@@ -177,66 +177,61 @@
     let players = {}; 
     let soundEnabled = true;
 
-    // Web Audio Synthesizer
+    // Fail-Safe Audio Engine
     let audioCtx = null;
-    function getAudioContext() {
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      }
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
-      return audioCtx;
-    }
-
-    function playTone(freq, type, duration, volume = 0.2) {
+    function safePlayTone(freq, type, duration, volume = 0.2) {
       if (!soundEnabled) return;
       try {
-        const ctx = getAudioContext();
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
         osc.type = type;
-        osc.frequency.setValueAtTime(freq, ctx.currentTime);
-        gain.gain.setValueAtTime(volume, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(volume, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
         osc.connect(gain);
-        gain.connect(ctx.destination);
+        gain.connect(audioCtx.destination);
         osc.start();
-        osc.stop(ctx.currentTime + duration);
-      } catch (e) {
-        console.warn('Audio error:', e);
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (err) {
+        console.warn('Audio bypass:', err);
       }
     }
 
-    // High-pitched, alarming retro-laser alarm siren
-    function playAlarmSiren() {
+    function safePlayAlarm() {
       if (!soundEnabled) return;
       try {
-        const ctx = getAudioContext();
-        const duration = 1.6; // Alarm plays for 1.6 seconds
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+        const duration = 1.6;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sawtooth';
         
-        osc.type = 'sawtooth'; // Aggressive retro sound
-        
-        // Fast pitch modulation (Siren wobble)
-        const now = ctx.currentTime;
+        const now = audioCtx.currentTime;
         osc.frequency.setValueAtTime(800, now);
-        // Sweep up and down extremely rapidly
         for (let i = 0; i < duration; i += 0.1) {
-          osc.frequency.linearRampToValueAtTime(2200, now + i + 0.05); // High peak
-          osc.frequency.linearRampToValueAtTime(900, now + i + 0.1);    // Low valley
+          osc.frequency.linearRampToValueAtTime(2200, now + i + 0.05);
+          osc.frequency.linearRampToValueAtTime(900, now + i + 0.1);
         }
 
         gain.gain.setValueAtTime(0.3, now);
         gain.gain.exponentialRampToValueAtTime(0.01, now + duration);
-        
         osc.connect(gain);
-        gain.connect(ctx.destination);
+        gain.connect(audioCtx.destination);
         osc.start();
         osc.stop(now + duration);
-      } catch (e) {
-        console.warn('Siren error:', e);
+      } catch (err) {
+        console.warn('Alarm bypass:', err);
       }
     }
 
@@ -247,6 +242,7 @@
       btn.style.background = soundEnabled ? '#3b82f6' : '#6b7280';
     }
 
+    // Initialize Channel Connection
     const channel = supabaseClient.channel('annual-dinner-race');
 
     channel.on('broadcast', { event: 'score_update' }, ({ payload }) => {
@@ -256,10 +252,12 @@
         totalScore: payload.totalScore
       };
       if (isRacing) renderLeaderboard();
-    }).subscribe();
+    }).subscribe((status) => {
+      console.log("Host connection status:", status);
+    });
 
     function triggerCountdown() {
-      getAudioContext(); // Unlock browser audio
+      // 1. Immediately disable button to give visual feedback
       const btn = document.getElementById('startBtn');
       btn.disabled = true;
       btn.style.opacity = '0.5';
@@ -270,23 +268,29 @@
       
       document.getElementById('roundStatus').innerText = `🛸 ROUND ${currentRound} INCOMING...`;
 
+      // 2. Play first sound safely
+      safePlayTone(600, 'triangle', 0.2, 0.2);
+
+      // 3. Robust countdown loop
       const countInterval = setInterval(() => {
         document.getElementById('timeRemaining').innerText = count;
-        
+
         if (count > 0) {
-          playTone(600, 'triangle', 0.2, 0.2); // Short retro alert beep
+          safePlayTone(600, 'triangle', 0.2, 0.2);
         }
 
-        channel.send({
-          type: 'broadcast',
-          event: 'round_control',
-          payload: { action: 'countdown', round: currentRound, seconds: count }
-        });
+        try {
+          channel.send({
+            type: 'broadcast',
+            event: 'round_control',
+            payload: { action: 'countdown', round: currentRound, seconds: count }
+          });
+        } catch(e) { console.warn(e); }
 
         count--;
         if (count < 0) {
           clearInterval(countInterval);
-          playTone(1200, 'square', 0.4, 0.25); // Launch beep
+          safePlayTone(1200, 'square', 0.4, 0.25);
           startRound();
         }
       }, 1000);
@@ -301,21 +305,25 @@
       document.getElementById('roundStatus').innerText = `⚡ ROUND ${currentRound} RUNNING! ⚡`;
       document.getElementById('timeRemaining').innerText = '30s';
 
-      channel.send({
-        type: 'broadcast',
-        event: 'round_control',
-        payload: { action: 'start', round: currentRound }
-      });
+      try {
+        channel.send({
+          type: 'broadcast',
+          event: 'round_control',
+          payload: { action: 'start', round: currentRound }
+        });
+      } catch(e) { console.warn(e); }
 
       timerInterval = setInterval(() => {
         roundTimeLeft--;
         document.getElementById('timeRemaining').innerText = `${roundTimeLeft}s`;
 
-        channel.send({
-          type: 'broadcast',
-          event: 'round_control',
-          payload: { action: 'tick', timeLeft: roundTimeLeft }
-        });
+        try {
+          channel.send({
+            type: 'broadcast',
+            event: 'round_control',
+            payload: { action: 'tick', timeLeft: roundTimeLeft }
+          });
+        } catch(e) { console.warn(e); }
 
         if (roundTimeLeft <= 0) {
           endRound();
@@ -327,14 +335,15 @@
       clearInterval(timerInterval);
       isRacing = false;
 
-      // Play the alarming laser-siren!
-      playAlarmSiren();
+      safePlayAlarm(); // Trigger finish siren
 
-      channel.send({
-        type: 'broadcast',
-        event: 'round_control',
-        payload: { action: 'end', round: currentRound }
-      });
+      try {
+        channel.send({
+          type: 'broadcast',
+          event: 'round_control',
+          payload: { action: 'end', round: currentRound }
+        });
+      } catch(e) { console.warn(e); }
 
       renderLeaderboard(true); 
 
@@ -363,11 +372,13 @@
         roundTimeLeft = 30;
         players = {}; 
 
-        channel.send({
-          type: 'broadcast',
-          event: 'round_control',
-          payload: { action: 'hard_reset' }
-        });
+        try {
+          channel.send({
+            type: 'broadcast',
+            event: 'round_control',
+            payload: { action: 'hard_reset' }
+          });
+        } catch(e) { console.warn(e); }
 
         document.getElementById('roundStatus').innerText = "ROUND 1 OF 3 (STANDBY)";
         document.getElementById('timeRemaining').innerText = "30s";
@@ -381,4 +392,68 @@
 
         const track = document.getElementById('raceTrack');
         track.innerHTML = `
-          <div id="standbyMessage" style="text-align: center; padding: 40px 50px; color: #64748B; font-size: 1.5rem; li
+          <div id="standbyMessage" style="text-align: center; padding: 40px 50px; color: #64748B; font-size: 1.5rem; line-height: 1.8;">
+            🕹️ READY EVERYONE... 🛼<br>
+            <span style="color: #ff007f; text-shadow: 0 0 5px #ff007f; font-weight: bold;">Scan the QR code to join the dance floor!</span><br><br>
+            
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=https://sahma12.github.io/CEG-Retro-Shake/&color=ff007f&bgcolor=121526" 
+                 alt="Scan to Join" 
+                 style="border: 4px solid #00ffff; border-radius: 12px; box-shadow: 0 0 20px #00ffff; margin: 10px auto;"/><br><br>
+            
+            Press [START ROUND 1] when everyone is locked in!
+          </div>`;
+      }
+    }
+
+    function renderLeaderboard(isFinalRoundReview = false) {
+      const sorted = Object.values(players).sort((a, b) => b.totalScore - a.totalScore).slice(0, 10);
+      const track = document.getElementById('raceTrack');
+      if (sorted.length === 0) return;
+
+      const topScore = sorted[0].totalScore || 1;
+
+      track.innerHTML = sorted.map((p, index) => {
+        const pct = Math.min(100, Math.max(12, Math.round((p.totalScore / (topScore * 1.15)) * 100)));
+        let iconMarker = '';
+        
+        if (index === 0) iconMarker = '👑 🪩 ';
+        else if (index === 1) iconMarker = '⚡ 📼 ';
+        else if (index === 2) iconMarker = '✨ 🛼 ';
+        else if (index === 3) iconMarker = '📻 ';
+        else if (index === 4) iconMarker = '🕹️ ';
+        else iconMarker = '👾 ';
+
+        return `
+          <div class="racer">
+            <div class="bar" style="width: ${pct}%;">
+              ${iconMarker}#${index + 1} ${p.name} — ${p.totalScore} pts (Round: ${p.roundScore})
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    function exportFullLeaderboard() {
+      const allSorted = Object.values(players).sort((a, b) => b.totalScore - a.totalScore);
+      if (allSorted.length === 0) {
+        alert("No player scores to export!");
+        return;
+      }
+
+      let csvContent = "Rank,Player Info,Total Score,Final Round Score\n";
+      allSorted.forEach((p, idx) => {
+        const safeName = p.name ? `"${p.name.replace(/"/g, '""')}"` : '"Unknown"';
+        csvContent += `${idx + 1},${safeName},${p.totalScore || 0},${p.roundScore || 0}\n`;
+      });
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `CEG_Retro_Shake_Results_${new Date().toISOString().slice(0,10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  </script>
+</body>
+</html>
