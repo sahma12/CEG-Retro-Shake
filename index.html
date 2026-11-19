@@ -5,30 +5,35 @@
   <title>CEG MYS Retro Night Shake Race</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    body { font-family: 'Courier New', Courier, monospace; text-align: center; padding: 30px; background: #0c0f1d; color: #fff; }
-    input, button { font-size: 1.2rem; padding: 12px 20px; margin: 10px; border-radius: 8px; border: none; width: 85%; max-width: 300px; box-sizing: border-box; }
+    body { font-family: 'Courier New', Courier, monospace; text-align: center; padding: 25px; background: #0c0f1d; color: #fff; margin: 0; }
+    input, button { font-size: 1.2rem; padding: 14px 20px; margin: 10px; border-radius: 8px; border: none; width: 90%; max-width: 320px; box-sizing: border-box; }
     input { background: #1a1f36; color: #fff; border: 2px solid #ff007f; text-align: center; }
-    button { background: #ff007f; color: white; font-weight: bold; cursor: pointer; text-transform: uppercase; box-shadow: 0 0 15px #ff007f; transition: all 0.2s; }
-    button:hover { background: #e60072; box-shadow: 0 0 25px #ff007f; }
-    #scoreDisplay { font-size: 5rem; font-weight: bold; color: #00ffff; margin-top: 20px; text-shadow: 0 0 15px #00ffff; }
-    h2 { color: #00ffff; text-shadow: 0 0 10px #00ffff; text-transform: uppercase; }
+    .btn-main { background: #ff007f; color: white; font-weight: bold; cursor: pointer; text-transform: uppercase; box-shadow: 0 0 15px #ff007f; }
+    .btn-tap { background: #00ffff; color: #0c0f1d; font-weight: 900; font-size: 1.5rem; margin-top: 20px; box-shadow: 0 0 20px #00ffff; padding: 25px; border-radius: 16px; cursor: pointer; }
+    #scoreDisplay { font-size: 5.5rem; font-weight: bold; color: #00ffff; margin: 15px 0; text-shadow: 0 0 15px #00ffff; }
+    h2 { color: #00ffff; text-shadow: 0 0 10px #00ffff; text-transform: uppercase; margin-top: 10px; }
   </style>
 </head>
 <body>
-  <div style="font-size: 3rem; margin-bottom: 10px; text-shadow: 0 0 10px #ff007f;">🕹️</div>
+  <div style="font-size: 3rem; margin-top: 10px;">🕹️</div>
   <h2>CEG MYS Retro Night<br>Shake Race</h2>
-  <p style="color: #ff007f; text-shadow: 0 0 5px #ff007f; font-weight: bold; margin-bottom: 30px;">GET READY TO SHAKE!</p>
+  <p style="color: #ff007f; font-weight: bold;">GET READY TO SHAKE!</p>
 
+  <!-- Screen 1: Join Screen -->
   <div id="joinScreen">
-    <input type="text" id="playerName" placeholder="Name / Table #" maxlength="18" />
+    <input type="text" id="playerName" placeholder="Enter Name / Table #" maxlength="18" />
     <br/>
-    <button onclick="joinGame()">Ready to Race</button>
+    <button class="btn-main" onclick="joinGame()">Ready to Race</button>
   </div>
 
+  <!-- Screen 2: Active Race Screen -->
   <div id="gameScreen" style="display:none;">
-    <h3 id="welcomeText" style="color: #ff007f; text-shadow: 0 0 10px #ff007f;">SHAKE YOUR PHONE!</h3>
+    <h3 id="welcomeText" style="color: #ff007f; text-shadow: 0 0 8px #ff007f; margin-bottom: 5px;">SHAKE YOUR PHONE!</h3>
     <div id="scoreDisplay">0</div>
-    <p style="color: #6b7280; font-size: 0.9rem; margin-top: 40px;">Works best on mobile data (4G/5G)</p>
+
+    <!-- Backup Tap Button in case someone's sensor is disabled -->
+    <button class="btn-tap" onclick="addManualShake()">TAP TAP TAP! ⚡</button>
+    <p style="color: #8892b0; font-size: 0.85rem; margin-top: 25px;">Works with phone shake or screen taps!</p>
   </div>
 
   <script>
@@ -36,4 +41,76 @@
     const SUPABASE_KEY = 'sb_publishable_KGzvBz2fj6wXguYTiz7c9A_YA4Du6wG';
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    const playerId = 'p_' + Math.r
+    const playerId = 'p_' + Math.random().toString(36).substring(2, 10);
+    let playerName = '';
+    let score = 0;
+    let lastShakeTime = 0;
+    let channel;
+
+    async function joinGame() {
+      const nameInput = document.getElementById('playerName').value.trim();
+      if (!nameInput) {
+        alert('Please enter your name or table number!');
+        return;
+      }
+      playerName = nameInput;
+
+      // Request iOS Motion Sensor Permission smoothly
+      try {
+        if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+          const perm = await DeviceMotionEvent.requestPermission();
+          console.log('Permission status:', perm);
+        }
+      } catch (err) {
+        console.warn('Motion permission bypassed or not required:', err);
+      }
+
+      // Transition to game screen immediately
+      document.getElementById('joinScreen').style.display = 'none';
+      document.getElementById('gameScreen').style.display = 'block';
+
+      // Connect to Supabase Realtime Channel
+      channel = supabaseClient.channel('annual-dinner-race');
+      channel.subscribe((status) => {
+        console.log('Supabase Channel status:', status);
+      });
+
+      // Listen for physical shake
+      if (window.DeviceMotionEvent) {
+        window.addEventListener('devicemotion', handleMotion, false);
+      }
+
+      // Broadcast score to the projector screen every 350ms
+      setInterval(() => {
+        if (score > 0 && channel) {
+          channel.send({
+            type: 'broadcast',
+            event: 'score_update',
+            payload: { id: playerId, name: playerName, score: score }
+          });
+        }
+      }, 350);
+    }
+
+    function handleMotion(event) {
+      const acc = event.accelerationIncludingGravity || event.acceleration;
+      if (!acc) return;
+      const totalForce = Math.abs(acc.x || 0) + Math.abs(acc.y || 0) + Math.abs(acc.z || 0);
+      const now = Date.now();
+
+      // Lower threshold (22) for easier detection across different phone models
+      if (totalForce > 22 && (now - lastShakeTime > 75)) {
+        score++;
+        lastShakeTime = now;
+        document.getElementById('scoreDisplay').innerText = score;
+      }
+    }
+
+    // Manual tap button for backup
+    function addManualShake() {
+      score++;
+      document.getElementById('scoreDisplay').innerText = score;
+    }
+  </script>
+</body>
+</html>
