@@ -1,43 +1,165 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>CEG MYS Retro Night - Projector Host</title>
+  <title>CEG MYS RETRO NIGHT • SHAKE-it CHALLENGE</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    body { font-family: 'Courier New', Courier, monospace; background: #090b15; color: white; padding: 25px; margin: 0; user-select: none; }
-    h1 { text-align: center; color: #00ffff; font-size: 2.5rem; margin: 0 0 5px 0; text-transform: uppercase; letter-spacing: 3px; text-shadow: 0 0 15px #00ffff; }
-    .subtitle { text-align: center; color: #ff007f; font-size: 1.1rem; margin-bottom: 20px; font-weight: bold; text-shadow: 0 0 8px #ff007f; }
-    
-    /* Control Bar */
-    #controlBar { max-width: 1100px; margin: 0 auto 20px auto; background: #121526; border-radius: 12px; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; border: 2px solid #3d1b5c; }
-    .btn-control { background: #ff007f; color: white; font-family: inherit; font-size: 1.2rem; font-weight: bold; padding: 12px 28px; border-radius: 8px; border: none; cursor: pointer; text-transform: uppercase; box-shadow: 0 0 15px #ff007f; transition: all 0.2s; }
-    .btn-control:hover { background: #00ffff; color: #090b15; box-shadow: 0 0 20px #00ffff; }
-    .timer-box { font-size: 2rem; color: #00ffff; font-weight: bold; text-shadow: 0 0 10px #00ffff; }
-    .round-info { font-size: 1.2rem; color: #ffbf00; font-weight: bold; }
+    /* 70s/80s Retro Grid Background & Font Styles */
+    body { 
+      font-family: 'Courier New', Courier, monospace; 
+      background-color: #0c0f1d;
+      background-image: 
+        linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+      background-size: 100% 4px, 6px 100%;
+      color: white; 
+      padding: 25px; 
+      margin: 0; 
+      user-select: none; 
+    }
 
-    /* Leaderboard Track */
-    #raceTrack { max-width: 1100px; margin: 0 auto; background: #121526; border-radius: 16px; padding: 20px 25px; border: 2px solid #3d1b5c; box-shadow: 0 0 30px rgba(255, 0, 127, 0.15); min-height: 480px; }
-    .racer { margin: 12px 0; background: #090b15; border-radius: 10px; padding: 5px; border: 1px solid #3d1b5c; position: relative; overflow: hidden; }
-    .bar { height: 42px; background: linear-gradient(90deg, #ff007f, #b300ff, #00ffff); border-radius: 6px;
-           transition: width 0.3s cubic-bezier(0.1, 0.8, 0.3, 1); display: flex; align-items: center; padding-left: 12px;
-           font-weight: bold; white-space: nowrap; font-size: 1.1rem; color: #FFFFFF; text-shadow: 2px 2px 4px rgba(0,0,0,0.9); }
+    /* Beautiful 2-Line Neon Glowing Header */
+    .header-container {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    h1 { 
+      font-size: 3.2rem; 
+      margin: 0; 
+      text-transform: uppercase; 
+      letter-spacing: 4px; 
+      color: #00ffff;
+      text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 40px #00ffff;
+      font-weight: 900;
+    }
+    .main-title-2 {
+      font-size: 3.8rem;
+      color: #ff007f;
+      text-shadow: 0 0 10px #ff007f, 0 0 25px #ff007f, 0 0 50px #ff007f;
+      letter-spacing: 5px;
+      margin-top: 5px;
+    }
+
+    .subtitle { 
+      text-align: center; 
+      color: #ffbf00; 
+      font-size: 1.3rem; 
+      margin-top: 15px;
+      margin-bottom: 25px; 
+      font-weight: bold; 
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      text-shadow: 0 0 8px rgba(255, 191, 0, 0.6); 
+    }
+    
+    /* Neon Control Bar */
+    #controlBar { 
+      max-width: 1100px; 
+      margin: 0 auto 25px auto; 
+      background: #121526; 
+      border-radius: 12px; 
+      padding: 15px 25px; 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      border: 3px solid #ff007f; 
+      box-shadow: 0 0 15px rgba(255, 0, 127, 0.4);
+    }
+    .btn-control { 
+      background: #ff007f; 
+      color: white; 
+      font-family: inherit; 
+      font-size: 1.3rem; 
+      font-weight: bold; 
+      padding: 14px 32px; 
+      border-radius: 8px; 
+      border: none; 
+      cursor: pointer; 
+      text-transform: uppercase; 
+      box-shadow: 0 0 15px #ff007f; 
+      transition: all 0.2s; 
+    }
+    .btn-control:hover { 
+      background: #00ffff; 
+      color: #090b15; 
+      box-shadow: 0 0 25px #00ffff; 
+    }
+    .timer-box { 
+      font-size: 2.3rem; 
+      color: #00ffff; 
+      font-weight: bold; 
+      text-shadow: 0 0 10px #00ffff; 
+    }
+    .round-info { 
+      font-size: 1.3rem; 
+      color: #ffbf00; 
+      font-weight: bold; 
+      text-shadow: 0 0 5px rgba(255,191,0,0.5);
+    }
+
+    /* Grand Retro Track Container */
+    #raceTrack { 
+      max-width: 1100px; 
+      margin: 0 auto; 
+      background: #121526; 
+      border-radius: 16px; 
+      padding: 25px; 
+      border: 3px solid #3d1b5c; 
+      box-shadow: 0 0 35px rgba(255, 0, 127, 0.15); 
+      min-height: 480px; 
+    }
+    .racer { 
+      margin: 16px 0; 
+      background: #090b15; 
+      border-radius: 12px; 
+      padding: 5px; 
+      border: 2px solid #3d1b5c; 
+      position: relative; 
+      overflow: hidden; 
+    }
+    .bar { 
+      height: 46px; 
+      background: linear-gradient(90deg, #ff007f, #b300ff, #00ffff, #ffbf00); 
+      border-radius: 8px;
+      transition: width 0.3s cubic-bezier(0.1, 0.8, 0.3, 1); 
+      display: flex; 
+      align-items: center; 
+      padding-left: 15px;
+      font-weight: bold; 
+      white-space: nowrap; 
+      font-size: 1.2rem; 
+      color: #FFFFFF; 
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.9); 
+    }
+    .trophy { 
+      margin-right: 8px; 
+      font-size: 1.5rem; 
+    }
   </style>
 </head>
 <body>
-  <h1>👾 CEG MYS Retro Night Shake Race 👾</h1>
-  <div class="subtitle">3 ROUNDS × 45 SECONDS • SHAKE FOR GLORY</div>
 
-  <!-- Operator Controls -->
+  <!-- Dynamic retro icons combined with 2-line glowing titles -->
+  <div class="header-container">
+    <h1>🪩 CEG MYS RETRO NIGHT 🪩</h1>
+    <h1 class="main-title-2">✨ SHAKE-it CHALLENGE ✨</h1>
+  </div>
+  
+  <div class="subtitle">📻 📼 3 ROUNDS × 30 SECONDS • SHAKE FOR COINS 🛼 🕹️</div>
+
+  <!-- Host Controls Panel -->
   <div id="controlBar">
     <div class="round-info" id="roundStatus">ROUND 1 OF 3 (STANDBY)</div>
-    <div class="timer-box" id="timeRemaining">45s</div>
+    <div class="timer-box" id="timeRemaining">30s</div>
     <button class="btn-control" id="startBtn" onclick="triggerCountdown()">START ROUND 1</button>
   </div>
 
-  <!-- Live Track -->
+  <!-- Realtime Track Arena -->
   <div id="raceTrack">
-    <div id="standbyMessage" style="text-align: center; padding: 80px; color: #64748B; font-size: 1.4rem;">
-      🚦 Players scanning QR code... Press [START ROUND 1] when ready!
+    <div id="standbyMessage" style="text-align: center; padding: 100px 50px; color: #64748B; font-size: 1.5rem; line-height: 1.8;">
+      🕺 INSERT COINS... 🕺<br>
+      <span style="color: #ff007f; text-shadow: 0 0 5px #ff007f;">Scan the QR code to join the dance floor!</span><br>
+      Press [START ROUND 1] when everyone is ready.
     </div>
   </div>
 
@@ -47,10 +169,10 @@
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     let currentRound = 1;
-    let roundTimeLeft = 45;
+    let roundTimeLeft = 30; // Changed back to 30 seconds
     let isRacing = false;
     let timerInterval = null;
-    const players = {}; // Key: id, Value: { name, roundScore, totalScore }
+    const players = {}; 
 
     const channel = supabaseClient.channel('annual-dinner-race');
 
@@ -73,7 +195,7 @@
       const standbyMsg = document.getElementById('standbyMessage');
       if (standbyMsg) standbyMsg.style.display = 'none';
       
-      document.getElementById('roundStatus').innerText = `ROUND ${currentRound} STARTING...`;
+      document.getElementById('roundStatus').innerText = `🛸 ROUND ${currentRound} INCOMING...`;
 
       const countInterval = setInterval(() => {
         document.getElementById('timeRemaining').innerText = count;
@@ -93,13 +215,13 @@
 
     function startRound() {
       isRacing = true;
-      roundTimeLeft = 45;
+      roundTimeLeft = 30; // 30-second round timer
 
-      // Reset round scores for this round
+      // Reset round scores for current participants
       Object.keys(players).forEach(id => { players[id].roundScore = 0; });
 
-      document.getElementById('roundStatus').innerText = `🔥 ROUND ${currentRound} OF 3 IN PROGRESS! 🔥`;
-      document.getElementById('timeRemaining').innerText = '45s';
+      document.getElementById('roundStatus').innerText = `⚡ ROUND ${currentRound} RUNNING! ⚡`;
+      document.getElementById('timeRemaining').innerText = '30s';
 
       channel.send({
         type: 'broadcast',
@@ -133,7 +255,7 @@
         payload: { action: 'end', round: currentRound }
       });
 
-      renderLeaderboard(true); // Final standings for this round
+      renderLeaderboard(true); 
 
       const btn = document.getElementById('startBtn');
       btn.disabled = false;
@@ -141,12 +263,12 @@
 
       if (currentRound < 3) {
         currentRound++;
-        document.getElementById('roundStatus').innerText = `ROUND ${currentRound - 1} OVER! PREPARE FOR ROUND ${currentRound}`;
-        document.getElementById('timeRemaining').innerText = '45s';
+        document.getElementById('roundStatus').innerText = `🏁 ROUND ${currentRound - 1} OVER! GET READY FOR ROUND ${currentRound}`;
+        document.getElementById('timeRemaining').innerText = '30s';
         btn.innerText = `START ROUND ${currentRound}`;
       } else {
-        document.getElementById('roundStatus').innerText = `🏆 TOURNAMENT COMPLETE! FINAL OVERALL STANDINGS 🏆`;
-        document.getElementById('timeRemaining').innerText = 'FINAL';
+        document.getElementById('roundStatus').innerText = `🏆 TOURNAMENT FINISHED! FINAL HALL OF FAME 🏆`;
+        document.getElementById('timeRemaining').innerText = 'COMPLETED';
         btn.style.display = 'none';
       }
     }
@@ -159,16 +281,21 @@
       const topScore = sorted[0].totalScore || 1;
 
       track.innerHTML = sorted.map((p, index) => {
-        const pct = Math.min(100, Math.max(10, Math.round((p.totalScore / (topScore * 1.1)) * 100)));
-        let medal = '';
-        if (index === 0) medal = '🥇 ';
-        else if (index === 1) medal = '🥈 ';
-        else if (index === 2) medal = '🥉 ';
+        const pct = Math.min(100, Math.max(12, Math.round((p.totalScore / (topScore * 1.15)) * 100)));
+        let iconMarker = '';
+        
+        // Dynamic Retro Icons based on ranking positions!
+        if (index === 0) iconMarker = '👑 🪩 ';
+        else if (index === 1) iconMarker = '⚡ 📼 ';
+        else if (index === 2) iconMarker = '✨ 🛼 ';
+        else if (index === 3) iconMarker = '📻 ';
+        else if (index === 4) iconMarker = '🕹️ ';
+        else iconMarker = '👾 ';
 
         return `
           <div class="racer">
             <div class="bar" style="width: ${pct}%;">
-              ${medal}#${index + 1} ${p.name} — ${p.totalScore} pts (Round: ${p.roundScore}) 🏎️💨
+              ${iconMarker}#${index + 1} ${p.name} — ${p.totalScore} pts (Round: ${p.roundScore})
             </div>
           </div>`;
       }).join('');
