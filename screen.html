@@ -65,6 +65,10 @@
       border: 3px solid #ff007f; 
       box-shadow: 0 0 15px rgba(255, 0, 127, 0.4);
     }
+    .btn-container {
+      display: flex;
+      gap: 15px;
+    }
     .btn-control { 
       background: #ff007f; 
       color: white; 
@@ -83,6 +87,17 @@
       background: #00ffff; 
       color: #090b15; 
       box-shadow: 0 0 25px #00ffff; 
+    }
+    /* Special Reset Styling */
+    .btn-reset {
+      background: #374151;
+      border: 2px solid #ff0055;
+      box-shadow: 0 0 8px rgba(255, 0, 85, 0.3);
+    }
+    .btn-reset:hover {
+      background: #ff0055;
+      color: white;
+      box-shadow: 0 0 20px #ff0055;
     }
     .timer-box { 
       font-size: 2.3rem; 
@@ -152,7 +167,10 @@
   <div id="controlBar">
     <div class="round-info" id="roundStatus">ROUND 1 OF 3 (STANDBY)</div>
     <div class="timer-box" id="timeRemaining">30s</div>
-    <button class="btn-control" id="startBtn" onclick="triggerCountdown()">START ROUND 1</button>
+    <div class="btn-container">
+      <button class="btn-control btn-reset" onclick="resetTournament()">⚠️ RESET ALL</button>
+      <button class="btn-control" id="startBtn" onclick="triggerCountdown()">START ROUND 1</button>
+    </div>
   </div>
 
   <!-- Realtime Track Arena -->
@@ -170,10 +188,10 @@
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     let currentRound = 1;
-    let roundTimeLeft = 30; // Standardized at 30 seconds
+    let roundTimeLeft = 30; 
     let isRacing = false;
     let timerInterval = null;
-    const players = {}; 
+    let players = {}; 
 
     const channel = supabaseClient.channel('annual-dinner-race');
 
@@ -216,7 +234,7 @@
 
     function startRound() {
       isRacing = true;
-      roundTimeLeft = 30; // 30-second round timer
+      roundTimeLeft = 30; 
 
       // Reset round scores for current participants
       Object.keys(players).forEach(id => { players[id].roundScore = 0; });
@@ -271,6 +289,41 @@
         document.getElementById('roundStatus').innerText = `🏆 TOURNAMENT FINISHED! FINAL HALL OF FAME 🏆`;
         document.getElementById('timeRemaining').innerText = 'COMPLETED';
         btn.style.display = 'none';
+      }
+    }
+
+    /* Clear and Reset Tournament State */
+    function resetTournament() {
+      if (confirm("⚠️ Are you sure you want to RESET the entire game? This deletes all scores!")) {
+        clearInterval(timerInterval);
+        isRacing = false;
+        currentRound = 1;
+        roundTimeLeft = 30;
+        players = {}; // Delete all test player records
+
+        // Broadcast a hard-end packet to force any open player screens to reset
+        channel.send({
+          type: 'broadcast',
+          event: 'round_control',
+          payload: { action: 'end', round: 1 }
+        });
+
+        document.getElementById('roundStatus').innerText = "ROUND 1 OF 3 (STANDBY)";
+        document.getElementById('timeRemaining').innerText = "30s";
+        
+        const btn = document.getElementById('startBtn');
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        btn.style.display = 'inline-block';
+        btn.innerText = "START ROUND 1";
+
+        const track = document.getElementById('raceTrack');
+        track.innerHTML = `
+          <div id="standbyMessage" style="text-align: center; padding: 100px 50px; color: #64748B; font-size: 1.5rem; line-height: 1.8;">
+            🕹️ READY PLAYER ONE... 🛼<br>
+            <span style="color: #ff007f; text-shadow: 0 0 5px #ff007f;">Scan the QR code to lock in your avatar!</span><br>
+            Press [START ROUND 1] when everyone is ready.
+          </div>`;
       }
     }
 
