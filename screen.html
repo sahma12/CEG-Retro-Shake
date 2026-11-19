@@ -67,15 +67,16 @@
     }
     .btn-container {
       display: flex;
-      gap: 15px;
+      gap: 12px;
+      align-items: center;
     }
     .btn-control { 
       background: #ff007f; 
       color: white; 
       font-family: inherit; 
-      font-size: 1.3rem; 
+      font-size: 1.25rem; 
       font-weight: bold; 
-      padding: 14px 32px; 
+      padding: 14px 28px; 
       border-radius: 8px; 
       border: none; 
       cursor: pointer; 
@@ -88,16 +89,31 @@
       color: #090b15; 
       box-shadow: 0 0 25px #00ffff; 
     }
-    /* Special Reset Styling */
+    /* Special Reset Button Styling */
     .btn-reset {
-      background: #374151;
-      border: 2px solid #ff0055;
-      box-shadow: 0 0 8px rgba(255, 0, 85, 0.3);
+      background: #27272a;
+      border: 2px solid #ef4444;
+      box-shadow: 0 0 8px rgba(239, 68, 68, 0.3);
+      font-size: 1.1rem;
+      padding: 14px 20px;
     }
     .btn-reset:hover {
-      background: #ff0055;
+      background: #ef4444;
       color: white;
-      box-shadow: 0 0 20px #ff0055;
+      box-shadow: 0 0 20px #ef4444;
+    }
+    /* Export CSV Button Styling */
+    .btn-export {
+      background: #10b981;
+      border: 2px solid #34d399;
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.5);
+      font-size: 1.15rem;
+      padding: 14px 22px;
+      display: none; 
+    }
+    .btn-export:hover {
+      background: #059669;
+      box-shadow: 0 0 22px #10b981;
     }
     .timer-box { 
       font-size: 2.3rem; 
@@ -146,28 +162,24 @@
       color: #FFFFFF; 
       text-shadow: 2px 2px 4px rgba(0,0,0,0.9); 
     }
-    .trophy { 
-      margin-right: 8px; 
-      font-size: 1.5rem; 
-    }
   </style>
 </head>
 <body>
 
-  <!-- Dynamic 2-line retro titles with sparkling emoticons -->
   <div class="header-container">
     <h1>🕺 CEG MYS RETRO NIGHT 🕺</h1>
     <h1 class="main-title-2">✨ SHAKE-it CHALLENGE ✨</h1>
   </div>
   
-  <!-- Cool Retro-Arcade High Score Tagline -->
-  <div class="subtitle">🪩 SHAKE YOUR GROOVE THING • GO FOR THE HIGH SCORE! 📼 🕹️</div>
+  <!-- Updated Turbo-Racing Tagline -->
+  <div class="subtitle">🚀 HIT THE TURBO BOOST • GO FOR THE HIGH SCORE! 📼 🕹️</div>
 
   <!-- Host Controls Panel -->
   <div id="controlBar">
     <div class="round-info" id="roundStatus">ROUND 1 OF 3 (STANDBY)</div>
     <div class="timer-box" id="timeRemaining">30s</div>
     <div class="btn-container">
+      <button class="btn-control btn-export" id="exportBtn" onclick="exportFullLeaderboard()">📥 EXPORT FULL RESULTS (CSV)</button>
       <button class="btn-control btn-reset" onclick="resetTournament()">⚠️ RESET ALL</button>
       <button class="btn-control" id="startBtn" onclick="triggerCountdown()">START ROUND 1</button>
     </div>
@@ -195,7 +207,6 @@
 
     const channel = supabaseClient.channel('annual-dinner-race');
 
-    // Receive player scores
     channel.on('broadcast', { event: 'score_update' }, ({ payload }) => {
       players[payload.id] = {
         name: payload.name,
@@ -236,7 +247,6 @@
       isRacing = true;
       roundTimeLeft = 30; 
 
-      // Reset round scores for current participants
       Object.keys(players).forEach(id => { players[id].roundScore = 0; });
 
       document.getElementById('roundStatus').innerText = `⚡ ROUND ${currentRound} RUNNING! ⚡`;
@@ -286,74 +296,15 @@
         document.getElementById('timeRemaining').innerText = '30s';
         btn.innerText = `START ROUND ${currentRound}`;
       } else {
-        document.getElementById('roundStatus').innerText = `🏆 TOURNAMENT FINISHED! FINAL HALL OF FAME 🏆`;
-        document.getElementById('timeRemaining').innerText = 'COMPLETED';
+        document.getElementById('roundStatus').innerText = `👾 GAME OVER • TOURNAMENT FINISHED 👾`;
+        document.getElementById('timeRemaining').innerText = '00s';
         btn.style.display = 'none';
+        document.getElementById('exportBtn').style.display = 'inline-block';
       }
     }
 
-    /* Clear and Reset Tournament State */
     function resetTournament() {
       if (confirm("⚠️ Are you sure you want to RESET the entire game? This deletes all scores!")) {
         clearInterval(timerInterval);
         isRacing = false;
-        currentRound = 1;
-        roundTimeLeft = 30;
-        players = {}; // Delete all test player records
-
-        // Broadcast a hard-end packet to force any open player screens to reset
-        channel.send({
-          type: 'broadcast',
-          event: 'round_control',
-          payload: { action: 'end', round: 1 }
-        });
-
-        document.getElementById('roundStatus').innerText = "ROUND 1 OF 3 (STANDBY)";
-        document.getElementById('timeRemaining').innerText = "30s";
-        
-        const btn = document.getElementById('startBtn');
-        btn.disabled = false;
-        btn.style.opacity = '1';
-        btn.style.display = 'inline-block';
-        btn.innerText = "START ROUND 1";
-
-        const track = document.getElementById('raceTrack');
-        track.innerHTML = `
-          <div id="standbyMessage" style="text-align: center; padding: 100px 50px; color: #64748B; font-size: 1.5rem; line-height: 1.8;">
-            🕹️ READY PLAYER ONE... 🛼<br>
-            <span style="color: #ff007f; text-shadow: 0 0 5px #ff007f;">Scan the QR code to lock in your avatar!</span><br>
-            Press [START ROUND 1] when everyone is ready.
-          </div>`;
-      }
-    }
-
-    function renderLeaderboard(isFinalRoundReview = false) {
-      const sorted = Object.values(players).sort((a, b) => b.totalScore - a.totalScore).slice(0, 10);
-      const track = document.getElementById('raceTrack');
-      if (sorted.length === 0) return;
-
-      const topScore = sorted[0].totalScore || 1;
-
-      track.innerHTML = sorted.map((p, index) => {
-        const pct = Math.min(100, Math.max(12, Math.round((p.totalScore / (topScore * 1.15)) * 100)));
-        let iconMarker = '';
-        
-        // Dynamic Retro/Disco Icons based on ranking positions!
-        if (index === 0) iconMarker = '👑 🪩 ';
-        else if (index === 1) iconMarker = '⚡ 📼 ';
-        else if (index === 2) iconMarker = '✨ 🛼 ';
-        else if (index === 3) iconMarker = '📻 ';
-        else if (index === 4) iconMarker = '🕹️ ';
-        else iconMarker = '👾 ';
-
-        return `
-          <div class="racer">
-            <div class="bar" style="width: ${pct}%;">
-              ${iconMarker}#${index + 1} ${p.name} — ${p.totalScore} pts (Round: ${p.roundScore})
-            </div>
-          </div>`;
-      }).join('');
-    }
-  </script>
-</body>
-</html>
+        curre
