@@ -5,35 +5,38 @@
   <title>CEG MYS Retro Night Shake Race</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    body { font-family: 'Courier New', Courier, monospace; text-align: center; padding: 25px; background: #0c0f1d; color: #fff; margin: 0; }
+    body { font-family: 'Courier New', Courier, monospace; text-align: center; padding: 25px; background: #0c0f1d; color: #fff; margin: 0; user-select: none; }
     input, button { font-size: 1.2rem; padding: 14px 20px; margin: 10px; border-radius: 8px; border: none; width: 90%; max-width: 320px; box-sizing: border-box; }
     input { background: #1a1f36; color: #fff; border: 2px solid #ff007f; text-align: center; }
     .btn-main { background: #ff007f; color: white; font-weight: bold; cursor: pointer; text-transform: uppercase; box-shadow: 0 0 15px #ff007f; }
-    .btn-tap { background: #00ffff; color: #0c0f1d; font-weight: 900; font-size: 1.5rem; margin-top: 20px; box-shadow: 0 0 20px #00ffff; padding: 25px; border-radius: 16px; cursor: pointer; }
-    #scoreDisplay { font-size: 5.5rem; font-weight: bold; color: #00ffff; margin: 15px 0; text-shadow: 0 0 15px #00ffff; }
+    #scoreDisplay { font-size: 5.5rem; font-weight: bold; color: #00ffff; margin: 10px 0; text-shadow: 0 0 15px #00ffff; }
+    #timerDisplay { font-size: 2.2rem; font-weight: bold; color: #ff007f; margin: 10px 0; text-shadow: 0 0 10px #ff007f; }
     h2 { color: #00ffff; text-shadow: 0 0 10px #00ffff; text-transform: uppercase; margin-top: 10px; }
+    .status-badge { display: inline-block; padding: 6px 16px; border-radius: 20px; font-weight: bold; font-size: 1rem; margin-bottom: 15px; }
+    .status-wait { background: #374151; color: #9ca3af; }
+    .status-shake { background: #10b981; color: #fff; animation: pulse 1s infinite; }
+    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
   </style>
 </head>
 <body>
   <div style="font-size: 3rem; margin-top: 10px;">🕹️</div>
   <h2>CEG MYS Retro Night<br>Shake Race</h2>
-  <p style="color: #ff007f; font-weight: bold;">GET READY TO SHAKE!</p>
 
-  <!-- Screen 1: Join Screen -->
+  <!-- Screen 1: Join -->
   <div id="joinScreen">
-    <input type="text" id="playerName" placeholder="Enter Name / Table #" maxlength="18" />
+    <p style="color: #ff007f; font-weight: bold;">ENTER NAME OR TABLE NUMBER</p>
+    <input type="text" id="playerName" placeholder="e.g. Table 12 - Sarah" maxlength="20" />
     <br/>
     <button class="btn-main" onclick="joinGame()">Ready to Race</button>
   </div>
 
-  <!-- Screen 2: Active Race Screen -->
+  <!-- Screen 2: Game / Waiting Area -->
   <div id="gameScreen" style="display:none;">
-    <h3 id="welcomeText" style="color: #ff007f; text-shadow: 0 0 8px #ff007f; margin-bottom: 5px;">SHAKE YOUR PHONE!</h3>
+    <div id="roundBadge" class="status-badge status-wait">WAITING FOR MC TO START</div>
+    <div id="timerDisplay">READY</div>
+    <h3 id="instructionText" style="color: #00ffff; text-shadow: 0 0 8px #00ffff; margin: 10px 0;">LOOK AT THE BIG SCREEN</h3>
     <div id="scoreDisplay">0</div>
-
-    <!-- Backup Tap Button in case someone's sensor is disabled -->
-    <button class="btn-tap" onclick="addManualShake()">TAP TAP TAP! ⚡</button>
-    <p style="color: #8892b0; font-size: 0.85rem; margin-top: 25px;">Works with phone shake or screen taps!</p>
+    <p style="color: #6b7280; font-size: 0.85rem; margin-top: 30px;">📱 Physical Shake Only Enabled</p>
   </div>
 
   <script>
@@ -43,73 +46,113 @@
 
     const playerId = 'p_' + Math.random().toString(36).substring(2, 10);
     let playerName = '';
-    let score = 0;
+    let currentRoundScore = 0;
+    let totalScore = 0;
+    let isRoundActive = false;
+    let currentRound = 1;
     let lastShakeTime = 0;
     let channel;
 
     async function joinGame() {
       const nameInput = document.getElementById('playerName').value.trim();
-      if (!nameInput) {
-        alert('Please enter your name or table number!');
-        return;
-      }
+      if (!nameInput) return alert('Please enter your name or table number!');
       playerName = nameInput;
 
-      // Request iOS Motion Sensor Permission smoothly
+      // Request iOS Motion Sensor Permission
       try {
         if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
-          const perm = await DeviceMotionEvent.requestPermission();
-          console.log('Permission status:', perm);
+          await DeviceMotionEvent.requestPermission();
         }
       } catch (err) {
         console.warn('Motion permission bypassed or not required:', err);
       }
 
-      // Transition to game screen immediately
       document.getElementById('joinScreen').style.display = 'none';
       document.getElementById('gameScreen').style.display = 'block';
 
-      // Connect to Supabase Realtime Channel
+      // Connect to Realtime Channel
       channel = supabaseClient.channel('annual-dinner-race');
-      channel.subscribe((status) => {
-        console.log('Supabase Channel status:', status);
+
+      // Listen for Game Controller signals from projector
+      channel.on('broadcast', { event: 'round_control' }, ({ payload }) => {
+        handleRoundControl(payload);
       });
 
-      // Listen for physical shake
+      channel.subscribe((status) => {
+        if (status === 'SUBSCRIBED') {
+          // Announce player presence
+          channel.send({
+            type: 'broadcast',
+            event: 'player_joined',
+            payload: { id: playerId, name: playerName }
+          });
+        }
+      });
+
+      // Attach accelerometer shake listener
       if (window.DeviceMotionEvent) {
         window.addEventListener('devicemotion', handleMotion, false);
       }
 
-      // Broadcast score to the projector screen every 350ms
+      // Broadcast score every 350ms during active race
       setInterval(() => {
-        if (score > 0 && channel) {
+        if (isRoundActive && channel) {
           channel.send({
             type: 'broadcast',
             event: 'score_update',
-            payload: { id: playerId, name: playerName, score: score }
+            payload: {
+              id: playerId,
+              name: playerName,
+              round: currentRound,
+              roundScore: currentRoundScore,
+              totalScore: totalScore + currentRoundScore
+            }
           });
         }
       }, 350);
     }
 
+    function handleRoundControl(data) {
+      if (data.action === 'countdown') {
+        currentRound = data.round;
+        document.getElementById('roundBadge').className = 'status-badge status-wait';
+        document.getElementById('roundBadge').innerText = `ROUND ${currentRound} STARTING IN...`;
+        document.getElementById('timerDisplay').innerText = data.seconds;
+        document.getElementById('instructionText').innerText = 'GET A TIGHT GRIP!';
+      } else if (data.action === 'start') {
+        isRoundActive = true;
+        currentRound = data.round;
+        currentRoundScore = 0;
+        document.getElementById('scoreDisplay').innerText = '0';
+        document.getElementById('roundBadge').className = 'status-badge status-shake';
+        document.getElementById('roundBadge').innerText = `🔥 ROUND ${currentRound} ACTIVE! 🔥`;
+        document.getElementById('instructionText').innerText = 'SHAKE AS FAST AS YOU CAN!';
+      } else if (data.action === 'tick') {
+        document.getElementById('timerDisplay').innerText = `${data.timeLeft}s`;
+      } else if (data.action === 'end') {
+        isRoundActive = false;
+        totalScore += currentRoundScore;
+        document.getElementById('roundBadge').className = 'status-badge status-wait';
+        document.getElementById('roundBadge').innerText = `ROUND ${currentRound} FINISHED!`;
+        document.getElementById('timerDisplay').innerText = 'TIME UP!';
+        document.getElementById('instructionText').innerText = 'LOOK AT THE PROJECTOR LEADERBOARD';
+      }
+    }
+
     function handleMotion(event) {
+      if (!isRoundActive) return; // Ignore shakes when round is not active
+
       const acc = event.accelerationIncludingGravity || event.acceleration;
       if (!acc) return;
       const totalForce = Math.abs(acc.x || 0) + Math.abs(acc.y || 0) + Math.abs(acc.z || 0);
       const now = Date.now();
 
-      // Lower threshold (22) for easier detection across different phone models
+      // Shake detection: threshold 22, minimum 75ms cooldown between shakes
       if (totalForce > 22 && (now - lastShakeTime > 75)) {
-        score++;
+        currentRoundScore++;
         lastShakeTime = now;
-        document.getElementById('scoreDisplay').innerText = score;
+        document.getElementById('scoreDisplay').innerText = currentRoundScore;
       }
-    }
-
-    // Manual tap button for backup
-    function addManualShake() {
-      score++;
-      document.getElementById('scoreDisplay').innerText = score;
     }
   </script>
 </body>
