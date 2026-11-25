@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>CEG MYS RETRO NIGHT • SHAKE-it CHALLENGE</title>
+  <title>INTEL CEG MYS RETRO NIGHT • SHAKE-it CHALLENGE</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     html, body {
@@ -49,7 +49,7 @@
 <body>
 
   <div class="retro-icons">🪩📼🛼🕹️📻</div>
-  <h1>CEG MYS RETRO NIGHT</h1>
+  <h1>INTEL CEG MYS RETRO NIGHT</h1>
   <div class="title-line-2">✨ SHAKE-it CHALLENGE ✨</div>
   <div class="tagline">🕺 SHAKE YOUR GROOVE THING! 🕺</div>
 
@@ -67,7 +67,7 @@
   <!-- Screen 2: Active Game / Standby Screen -->
   <div id="gameScreen" class="card-box" style="display:none;">
     <div id="playerTag" style="color: #00ffff; font-size: 0.9rem; margin-bottom: 8px; font-weight: bold;"></div>
-    <div id="roundBadge" class="status-badge status-wait">⏳ WAITING FOR MC...</div>
+    <div id="roundBadge" class="status-badge status-wait">⏳ STANDBY...</div>
     <div id="timerDisplay">30s</div>
     <h3 id="instructionText" style="color: #ff007f; text-shadow: 0 0 8px #ff007f; margin: 5px 0;">EYES ON THE BIG SCREEN!</h3>
     <div id="scoreDisplay">0</div>
@@ -143,13 +143,7 @@
     }
 
     function handleRoundControl(data) {
-      if (data.action === 'countdown') {
-        currentRound = data.round;
-        document.getElementById('roundBadge').className = 'status-badge status-wait';
-        document.getElementById('roundBadge').innerText = `🛸 ROUND ${currentRound} STARTING IN...`;
-        document.getElementById('timerDisplay').innerText = data.seconds;
-        document.getElementById('instructionText').innerText = 'HOLD YOUR PHONE TIGHT!';
-      } else if (data.action === 'start') {
+      if (data.action === 'start') {
         isRoundActive = true;
         currentRound = data.round;
         currentRoundScore = 0;
@@ -157,6 +151,7 @@
         document.getElementById('roundBadge').className = 'status-badge status-shake';
         document.getElementById('roundBadge').innerText = `🔥 ROUND ${currentRound} LIVE! 🔥`;
         document.getElementById('instructionText').innerText = '🪩 SHAKE IT TO THE MAX! 🪩';
+        document.getElementById('timerDisplay').innerText = '30s';
       } else if (data.action === 'tick') {
         document.getElementById('timerDisplay').innerText = `${data.timeLeft}s`;
       } else if (data.action === 'end') {
@@ -167,13 +162,11 @@
         document.getElementById('timerDisplay').innerText = 'TIME UP!';
         document.getElementById('instructionText').innerText = `TOTAL SCORE: ${totalScore} PTS`;
       } else if (data.action === 'hard_reset') {
-        // Hard Reset received from Projector!
         isRoundActive = false;
         currentRoundScore = 0;
         totalScore = 0;
         currentRound = 1;
         
-        // Reset player screen interface back to start but KEEP input text
         document.getElementById('gameScreen').style.display = 'none';
         document.getElementById('joinScreen').style.display = 'block';
         document.getElementById('joinBtn').innerText = "🚀 REJOIN STARTING LINE";
@@ -194,7 +187,6 @@
       }
     }
 
-    // Dynamic 500ms broadcast throttle
     setInterval(() => {
       if (isRoundActive && channel) {
         channel.send({
