@@ -76,9 +76,6 @@
       transition: all 0.2s; 
     }
     .btn-control:hover { background: #00ffff; color: #090b15; box-shadow: 0 0 25px #00ffff; }
-    
-    .btn-sound { background: #3b82f6; font-size: 1.1rem; padding: 14px 18px; }
-    .btn-sound:hover { background: #60a5fa; color: white; }
 
     .btn-reset { 
       background: #27272a; 
@@ -128,12 +125,12 @@
       text-shadow: 2px 2px 4px rgba(0,0,0,0.9); 
     }
     
-    /* Live Participant Counter Styling */
+    /* Live Participant Counter - Glowing Retro Yellow */
     .player-counter {
-      color: #00ffff;
-      text-shadow: 0 0 12px #00ffff;
+      color: #ffbf00;
+      text-shadow: 0 0 12px #ffbf00;
       font-weight: bold;
-      font-size: 1.6rem;
+      font-size: 1.8rem;
       margin: 15px auto;
       text-transform: uppercase;
       letter-spacing: 1px;
@@ -154,7 +151,6 @@
     <div class="round-info" id="roundStatus">ROUND 1 OF 3 (STANDBY)</div>
     <div class="timer-box" id="timeRemaining">30s</div>
     <div class="btn-container">
-      <button class="btn-control btn-sound" id="soundBtn" onclick="toggleSound()">🔊 SOUND: ON</button>
       <button class="btn-control btn-export" id="exportBtn" onclick="exportFullLeaderboard()">📥 EXPORT FULL RESULTS (CSV)</button>
       <button class="btn-control btn-reset" onclick="resetTournament()">⚠️ RESET ALL</button>
       <button class="btn-control" id="startBtn" onclick="triggerStart()">START ROUND 1</button>
@@ -163,16 +159,16 @@
 
   <!-- Realtime Track Arena -->
   <div id="raceTrack">
-    <div id="standbyMessage" style="text-align: center; padding: 30px 50px; color: #64748B; font-size: 1.5rem; line-height: 1.8;">
+    <div id="standbyMessage" style="text-align: center; padding: 40px 50px; color: #64748B; font-size: 1.5rem; line-height: 1.8;">
       <span style="color: #ff007f; text-shadow: 0 0 5px #ff007f; font-weight: bold;">Scan the QR code to join the dance floor!</span><br><br>
       
       <!-- Embedded Dynamic QR Code -->
       <img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=https://sahma12.github.io/CEG-Retro-Shake/&color=ff007f&bgcolor=121526" 
            alt="Scan to Join" 
-           style="border: 4px solid #00ffff; border-radius: 12px; box-shadow: 0 0 20px #00ffff; margin: 5px auto;"/><br>
+           style="border: 4px solid #00ffff; border-radius: 12px; box-shadow: 0 0 20px #00ffff; margin: 10px auto;"/><br>
       
-      <!-- Live Counter Element -->
-      <div class="player-counter" id="liveCounter">⚡ CONTESTANTS LOGGED IN: 0</div>
+      <!-- Live Counter Element - Glowing Neon Yellow -->
+      <div class="player-counter" id="liveCounter">⚡ DANCERS JOINED IN: 0</div>
       
       Press [START ROUND 1] when everyone is locked in!
     </div>
@@ -188,72 +184,6 @@
     let isRacing = false;
     let timerInterval = null;
     let players = {}; 
-    let soundEnabled = true;
-
-    // Fail-Safe Audio Engine
-    let audioCtx = null;
-    function safePlayTone(freq, type, duration, volume = 0.2) {
-      if (!soundEnabled) return;
-      try {
-        if (!audioCtx) {
-          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-        if (audioCtx.state === 'suspended') {
-          audioCtx.resume();
-        }
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = type;
-        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-        gain.gain.setValueAtTime(volume, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + duration);
-      } catch (err) {
-        console.warn('Audio bypass:', err);
-      }
-    }
-
-    function safePlayAlarm() {
-      if (!soundEnabled) return;
-      try {
-        if (!audioCtx) {
-          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-        if (audioCtx.state === 'suspended') {
-          audioCtx.resume();
-        }
-        const duration = 1.6;
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'sawtooth';
-        
-        const now = audioCtx.currentTime;
-        osc.frequency.setValueAtTime(800, now);
-        for (let i = 0; i < duration; i += 0.1) {
-          osc.frequency.linearRampToValueAtTime(2200, now + i + 0.05);
-          osc.frequency.linearRampToValueAtTime(900, now + i + 0.1);
-        }
-
-        gain.gain.setValueAtTime(0.3, now);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + duration);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(now + duration);
-      } catch (err) {
-        console.warn('Alarm bypass:', err);
-      }
-    }
-
-    function toggleSound() {
-      soundEnabled = !soundEnabled;
-      const btn = document.getElementById('soundBtn');
-      btn.innerText = soundEnabled ? '🔊 SOUND: ON' : '🔇 SOUND: OFF';
-      btn.style.background = soundEnabled ? '#3b82f6' : '#6b7280';
-    }
 
     // Initialize Channel Connection
     const channel = supabaseClient.channel('annual-dinner-race');
@@ -286,7 +216,7 @@
       const counterEl = document.getElementById('liveCounter');
       if (counterEl) {
         const totalCount = Object.keys(players).length;
-        counterEl.innerText = `⚡ CONTESTANTS LOGGED IN: ${totalCount}`;
+        counterEl.innerText = `⚡ DANCERS JOINED IN: ${totalCount}`;
       }
     }
 
@@ -299,8 +229,6 @@
       const standbyMsg = document.getElementById('standbyMessage');
       if (standbyMsg) standbyMsg.style.display = 'none';
 
-      // Play start alert sound immediately
-      safePlayTone(1200, 'square', 0.4, 0.25);
       startRound();
     }
 
@@ -342,8 +270,6 @@
     function endRound() {
       clearInterval(timerInterval);
       isRacing = false;
-
-      safePlayAlarm(); // Play the alarming laser finish-line siren
 
       try {
         channel.send({
@@ -407,7 +333,7 @@
                  alt="Scan to Join" 
                  style="border: 4px solid #00ffff; border-radius: 12px; box-shadow: 0 0 20px #00ffff; margin: 10px auto;"/><br>
             
-            <div class="player-counter" id="liveCounter">⚡ CONTESTANTS LOGGED IN: 0</div>
+            <div class="player-counter" id="liveCounter">⚡ DANCERS JOINED IN: 0</div>
             
             Press [START ROUND 1] when everyone is locked in!
           </div>`;
